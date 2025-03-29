@@ -30,4 +30,14 @@ public class MemorySnapshotStorage<T> implements SnapshotStorage<T> {
         return snapshots.containsKey(name);
     }
 
+    @Override
+    public void clear() {
+        snapshots.clear();
+    }
+
+    @Override
+    public void remove(String name) {
+        snapshots.remove(name);
+    }
+
 }

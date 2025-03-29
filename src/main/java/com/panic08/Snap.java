@@ -65,4 +65,16 @@ public final class Snap<T> {
         return DiffUtils.diff(target, storage.load("default").getState());
     }
 
+    public void clear() {
+        storage.clear();
+    }
+
+    public void remove() {
+        storage.remove("default");
+    }
+
+    public void remove(String name) {
+        storage.remove(name);
+    }
+
 }

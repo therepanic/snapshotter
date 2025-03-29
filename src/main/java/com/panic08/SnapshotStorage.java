@@ -10,4 +10,8 @@ public interface SnapshotStorage<T> {
 
     boolean hasSnapshot(String name);
 
+    void clear();
+
+    void remove(String name);
+
 }
