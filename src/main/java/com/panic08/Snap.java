@@ -65,6 +65,10 @@ public final class Snap<T> {
         return DiffUtils.diff(target, storage.load("default").getState());
     }
 
+    public boolean hasSnapshot(String name) {
+        return storage.hasSnapshot(name);
+    }
+
     public void clear() {
         storage.clear();
     }
