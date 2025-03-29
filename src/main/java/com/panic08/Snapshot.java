@@ -1,14 +1,16 @@
 package com.panic08;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
 import java.lang.reflect.Field;
 
 public class Snapshot<T> {
 
+    private final Kryo kryo = KryoSingleton.getInstance();
     private final T state;
 
     public Snapshot(T state) {
@@ -26,21 +28,16 @@ public class Snapshot<T> {
         }
     }
 
-    public String show() {
-        return state.toString();
-    }
-
     private T deepCopy(T obj) {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-            oos.writeObject(obj);
-            try (ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-                 ObjectInputStream ois = new ObjectInputStream(bis)) {
-                return (T) ois.readObject();
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+        Output output = new Output(byteOutput);
+        kryo.writeObject(output, obj);
+        output.close();
+        ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
+        Input input = new Input(byteInput);
+        T cloned = (T) kryo.readObject(input, obj.getClass());
+        input.close();
+        return cloned;
     }
 
     public T getState() {
