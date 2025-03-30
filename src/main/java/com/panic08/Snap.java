@@ -81,4 +81,13 @@ public final class Snap<T> {
         storage.remove(name);
     }
 
+    public void runAndSave(Runnable action) {
+        action.run();
+        storage.save("default", new Snapshot<>(target));
+    }
+
+    public void runAndSave(Runnable action, String name) {
+        action.run();
+        storage.save(name, new Snapshot<>(target));
+    }
 }
