@@ -17,7 +17,8 @@ public class DiffUtils {
     private static Map<String, String> compareObjects(String prefix, Object first, Object second) {
         Map<String, String> differences = new HashMap<>();
         if (first == null || second == null) {
-            differences.put(prefix.isEmpty() ? "root" : prefix, second + " -> " + first);
+            String key = prefix.isEmpty() ? "root" : prefix.substring(0, prefix.length() - 1);
+            differences.put(key, second + " -> " + first);
             return differences;
         }
         if (first.getClass() != second.getClass()) {
