@@ -18,54 +18,31 @@
  * THE SOFTWARE.
  */
 
-package com.panic08;
+package com.panic08.storage;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.panic08.KryoSingleton;
+import com.panic08.Snapshot;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
+public class BytesFileSnapshotStorage<T> extends FileSnapshotStorage<T> {
 
-public class Snapshot<T> {
+    private final Kryo kryo = KryoSingleton.getInstance();
 
-    private final transient Kryo kryo = KryoSingleton.getInstance();
-    private final T state;
-
-    public Snapshot(T state) {
-        this.state = deepCopy(state);
-    }
-
-    public Snapshot() {
-        this.state = null;
-    }
-
-    public void restore(T target) {
-        try {
-            for (Field field : state.getClass().getDeclaredFields()) {
-                field.setAccessible(true);
-                field.set(target, field.get(state));
-            }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+    @Override
+    public byte[] encode(Snapshot<T> snapshot) {
+        try (Output output = new Output(1024, -1)) {
+            kryo.writeObject(output, snapshot);
+            return output.toBytes();
         }
     }
 
-    private T deepCopy(T obj) {
-        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-        Output output = new Output(byteOutput);
-        kryo.writeObject(output, obj);
-        output.close();
-        ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
-        Input input = new Input(byteInput);
-        T cloned = (T) kryo.readObject(input, obj.getClass());
-        input.close();
-        return cloned;
-    }
-
-    public T getState() {
-        return state;
+    @Override
+    public Snapshot<T> decode(byte[] data) {
+        try (Input input = new Input(data)) {
+            return (Snapshot<T>) kryo.readObject(input, Snapshot.class);
+        }
     }
 
 }

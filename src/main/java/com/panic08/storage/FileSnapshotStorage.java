@@ -64,14 +64,11 @@ public abstract class FileSnapshotStorage<T> implements SnapshotStorage<T> {
 
     @Override
     public Snapshot<T> loadLast() {
-        File file = new File(snapshots.keySet().stream().reduce((first, second) -> second).get());
-        try (FileInputStream fis = new FileInputStream(file)) {
-            byte[] data = new byte[(int) file.length()];
-            fis.read(data);
-            return decode(data);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        String lastPath = snapshots.keySet().stream().reduce((first, second) -> second).orElse(null);
+        if (lastPath == null) {
+            return null;
         }
+        return load(lastPath);
     }
 
     @Override
