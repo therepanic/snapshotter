@@ -52,6 +52,7 @@ public class Snapshot<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private T deepCopy(T obj) {
         ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
         Output output = new Output(byteOutput);

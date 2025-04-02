@@ -38,6 +38,7 @@ public class BytesFileSnapshotStorage<T> extends FileSnapshotStorage<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Snapshot<T> decode(byte[] data) {
         try (Input input = new Input(data)) {
