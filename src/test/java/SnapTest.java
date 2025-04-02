@@ -93,6 +93,13 @@ class SnapTest {
     }
 
     @Test
+    void testDiffWithNameNoDifference() {
+        snap.save("snap");
+        Map<String, String> diff = snap.diff("snap");
+        assertTrue(diff.isEmpty());
+    }
+
+    @Test
     void testDiffWithDifference() {
         snap.save();
         target.setData("changed");
