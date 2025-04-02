@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class FileSnapshotStorage<T> implements SnapshotStorage<T> {
+public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<T> {
 
     private final Map<String, File> snapshots = new LinkedHashMap<>();
 

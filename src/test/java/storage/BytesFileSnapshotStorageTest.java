@@ -20,13 +20,13 @@
 
 package storage;
 
+import com.panic08.storage.AbstractFileSnapshotStorage;
 import com.panic08.storage.BytesFileSnapshotStorage;
-import com.panic08.storage.FileSnapshotStorage;
 
-class BytesFileSnapshotStorageTest extends FileSnapshotStorageTest{
+class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
 
     @Override
-    protected FileSnapshotStorage<DummyState> createStorage() {
+    protected AbstractFileSnapshotStorage<DummyState> createStorage() {
         return new BytesFileSnapshotStorage<>();
     }
 

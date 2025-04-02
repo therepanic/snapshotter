@@ -21,7 +21,7 @@
 package storage;
 
 import com.panic08.Snapshot;
-import com.panic08.storage.FileSnapshotStorage;
+import com.panic08.storage.AbstractFileSnapshotStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class FileSnapshotStorageTest {
+abstract class AbstractFileSnapshotStorageTest {
     @TempDir
     protected Path tempDir;
 
@@ -64,9 +64,9 @@ abstract class FileSnapshotStorageTest {
         }
     }
 
-    protected FileSnapshotStorage<DummyState> storage;
+    protected AbstractFileSnapshotStorage<DummyState> storage;
 
-    protected abstract FileSnapshotStorage<DummyState> createStorage();
+    protected abstract AbstractFileSnapshotStorage<DummyState> createStorage();
 
     @BeforeEach
     void setUp() {

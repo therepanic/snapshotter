@@ -26,7 +26,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.panic08.KryoSingleton;
 import com.panic08.Snapshot;
 
-public class BytesFileSnapshotStorage<T> extends FileSnapshotStorage<T> {
+public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
     private final Kryo kryo = KryoSingleton.getInstance();
 
