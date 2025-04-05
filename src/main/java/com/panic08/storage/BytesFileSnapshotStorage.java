@@ -23,6 +23,7 @@ package com.panic08.storage;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.panic08.AbstractFileSnapshotStorage;
 import com.panic08.Snapshot;
 
 public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {

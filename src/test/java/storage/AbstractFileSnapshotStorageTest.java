@@ -22,7 +22,7 @@ package storage;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.panic08.Snapshot;
-import com.panic08.storage.AbstractFileSnapshotStorage;
+import com.panic08.AbstractFileSnapshotStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -20,7 +20,7 @@
 
 package storage;
 
-import com.panic08.storage.AbstractFileSnapshotStorage;
+import com.panic08.AbstractFileSnapshotStorage;
 import com.panic08.storage.BytesFileSnapshotStorage;
 
 class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {

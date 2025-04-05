@@ -18,7 +18,7 @@
  * THE SOFTWARE.
  */
 
-package com.panic08.storage;
+package com.panic08;
 
 import com.panic08.Snapshot;
 import com.panic08.SnapshotStorage;
