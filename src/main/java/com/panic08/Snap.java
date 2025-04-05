@@ -20,6 +20,8 @@
 
 package com.panic08;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.panic08.storage.BytesFileSnapshotStorage;
 import com.panic08.storage.MemorySnapshotStorage;
 
 import java.util.Map;
@@ -28,26 +30,46 @@ public final class Snap<T> {
 
     private final T target;
     private final SnapshotStorage<T> storage;
+    private final Kryo kryo;
 
-    private Snap(T target, SnapshotStorage<T> storage) {
+    private Snap(T target, SnapshotStorage<T> storage, Kryo kryo) {
         this.target = target;
         this.storage = storage;
+        this.kryo = kryo;
     }
 
     public static <T> Snap<T> of(T target) {
-        return new Snap<>(target, new MemorySnapshotStorage<>());
+        Kryo newKryo = new Kryo();
+        newKryo.setRegistrationRequired(false);
+        return new Snap<>(target, new MemorySnapshotStorage<>(), newKryo);
+    }
+
+    public static <T> Snap<T> of(T target, Kryo kryo) {
+        return new Snap<>(target, new MemorySnapshotStorage<>(), kryo);
     }
 
     public static <T> Snap<T> of(T target, SnapshotStorage<T> storage) {
-        return new Snap<>(target, storage);
+        Kryo newKryo = new Kryo();
+        newKryo.setRegistrationRequired(false);
+        return new Snap<>(target, storage, newKryo);
+    }
+
+    public static <T> Snap<T> ofBytes(T target) {
+        Kryo newKryo = new Kryo();
+        newKryo.setRegistrationRequired(false);
+        return new Snap<>(target, new BytesFileSnapshotStorage<>(newKryo), newKryo);
+    }
+
+    public static <T> Snap<T> of(T target, SnapshotStorage<T> storage, Kryo kryo) {
+        return new Snap<>(target, storage, kryo);
     }
 
     public void save() {
-        storage.save("default", new Snapshot<>(target));
+        storage.save("default", new Snapshot<>(target, kryo));
     }
 
     public void save(String name) {
-        storage.save(name, new Snapshot<>(target));
+        storage.save(name, new Snapshot<>(target, kryo));
     }
 
     public boolean restore() {
@@ -103,11 +125,11 @@ public final class Snap<T> {
 
     public void runAndSave(Runnable action) {
         action.run();
-        storage.save("default", new Snapshot<>(target));
+        storage.save("default", new Snapshot<>(target, kryo));
     }
 
     public void runAndSave(Runnable action, String name) {
         action.run();
-        storage.save(name, new Snapshot<>(target));
+        storage.save(name, new Snapshot<>(target, kryo));
     }
 }

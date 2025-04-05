@@ -18,7 +18,9 @@
  * THE SOFTWARE.
  */
 
+import com.esotericsoftware.kryo.Kryo;
 import com.panic08.Snapshot;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,10 +46,19 @@ class SnapshotTest {
         }
     }
 
+    private Kryo kryo;
+
+    @BeforeEach
+    void setUp() {
+        Kryo newKryo = new Kryo();
+        newKryo.setRegistrationRequired(false);
+        this.kryo = newKryo;
+    }
+
     @Test
     void testSnapshotStoresDeepCopy() {
         DummyState original = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original);
+        Snapshot<DummyState> snapshot = new Snapshot<>(original, kryo);
         original.setData("modified");
         assertEquals("data", snapshot.getState().getData());
     }
@@ -56,7 +67,7 @@ class SnapshotTest {
     void testRestore() {
         DummyState original = new DummyState("initial");
         DummyState target = new DummyState("empty");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original);
+        Snapshot<DummyState> snapshot = new Snapshot<>(original, kryo);
         snapshot.restore(target);
         assertEquals("initial", target.getData());
     }

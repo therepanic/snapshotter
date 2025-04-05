@@ -34,9 +34,9 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
 
     private final Map<String, File> snapshots = new LinkedHashMap<>();
 
-    public abstract byte[] encode(Snapshot<T> snapshot);
+    protected abstract byte[] encode(Snapshot<T> snapshot);
 
-    public abstract Snapshot<T> decode(byte[] data);
+    protected abstract Snapshot<T> decode(byte[] data);
 
     @Override
     public void save(String name, Snapshot<T> snapshot) {

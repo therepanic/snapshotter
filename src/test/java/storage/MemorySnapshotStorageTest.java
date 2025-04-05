@@ -20,6 +20,7 @@
 
 package storage;
 
+import com.esotericsoftware.kryo.Kryo;
 import com.panic08.Snapshot;
 import com.panic08.storage.MemorySnapshotStorage;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,16 +46,20 @@ class MemorySnapshotStorageTest {
     }
 
     private MemorySnapshotStorage<DummyState> storage;
+    private Kryo kryo;
 
     @BeforeEach
     void setUp() {
-        storage = new MemorySnapshotStorage<>();
+        Kryo newKryo = new Kryo();
+        newKryo.setRegistrationRequired(false);
+        this.kryo = newKryo;
+        this.storage = new MemorySnapshotStorage<>();
     }
 
     @Test
     void testSaveAndLoad() {
         DummyState state = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(state);
+        Snapshot<DummyState> snapshot = new Snapshot<>(state, kryo);
         storage.save("snapshot1", snapshot);
         assertNotNull(storage.load("snapshot1"));
         assertEquals("data", storage.load("snapshot1").getState().getData());
@@ -62,29 +67,29 @@ class MemorySnapshotStorageTest {
 
     @Test
     void testLoadLast() {
-        storage.save("first", new Snapshot<>(new DummyState("one")));
-        storage.save("second", new Snapshot<>(new DummyState("two")));
+        storage.save("first", new Snapshot<>(new DummyState("one"), kryo));
+        storage.save("second", new Snapshot<>(new DummyState("two"), kryo));
         assertEquals("two", storage.loadLast().getState().getData());
     }
 
     @Test
     void testHasSnapshot() {
-        storage.save("exists", new Snapshot<>(new DummyState("value")));
+        storage.save("exists", new Snapshot<>(new DummyState("value"), kryo));
         assertTrue(storage.hasSnapshot("exists"));
         assertFalse(storage.hasSnapshot("missing"));
     }
 
     @Test
     void testRemove() {
-        storage.save("temp", new Snapshot<>(new DummyState("to delete")));
+        storage.save("temp", new Snapshot<>(new DummyState("to delete"), kryo));
         storage.remove("temp");
         assertFalse(storage.hasSnapshot("temp"));
     }
 
     @Test
     void testClear() {
-        storage.save("one", new Snapshot<>(new DummyState("1")));
-        storage.save("two", new Snapshot<>(new DummyState("2")));
+        storage.save("one", new Snapshot<>(new DummyState("1"), kryo));
+        storage.save("two", new Snapshot<>(new DummyState("2"), kryo));
         storage.clear();
         assertNull(storage.loadLast());
     }

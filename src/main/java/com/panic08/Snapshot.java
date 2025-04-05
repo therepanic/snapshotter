@@ -30,15 +30,17 @@ import java.lang.reflect.Field;
 
 public class Snapshot<T> {
 
-    private final transient Kryo kryo = KryoSingleton.getInstance();
+    private final transient Kryo kryo;
     private final T state;
 
-    public Snapshot(T state) {
+    public Snapshot(T state, Kryo kryo) {
+        this.kryo = kryo;
         this.state = deepCopy(state);
     }
 
     public Snapshot() {
         this.state = null;
+        this.kryo = null;
     }
 
     public void restore(T target) {

@@ -27,7 +27,7 @@ class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
 
     @Override
     protected AbstractFileSnapshotStorage<DummyState> createStorage() {
-        return new BytesFileSnapshotStorage<>();
+        return new BytesFileSnapshotStorage<>(kryo);
     }
 
 }

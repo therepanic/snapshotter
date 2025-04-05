@@ -23,12 +23,15 @@ package com.panic08.storage;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.panic08.KryoSingleton;
 import com.panic08.Snapshot;
 
 public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
-    private final Kryo kryo = KryoSingleton.getInstance();
+    private final Kryo kryo;
+
+    public BytesFileSnapshotStorage(Kryo kryo) {
+        this.kryo = kryo;
+    }
 
     @Override
     public byte[] encode(Snapshot<T> snapshot) {
