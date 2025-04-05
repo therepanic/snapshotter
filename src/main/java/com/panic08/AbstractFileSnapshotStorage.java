@@ -20,9 +20,6 @@
 
 package com.panic08;
 
-import com.panic08.Snapshot;
-import com.panic08.SnapshotStorage;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

@@ -20,33 +20,8 @@
 
 package com.panic08;
 
-import java.lang.reflect.Field;
+public interface SnapshotStrategy<T> {
 
-public class Snapshot<T> {
-
-    private final T state;
-
-    public Snapshot(T state, SnapshotStrategy<T> strategy) {
-        this.state = strategy.deepClone(state);
-    }
-
-    public Snapshot() {
-        this.state = null;
-    }
-
-    public void restore(T target) {
-        try {
-            for (Field field : state.getClass().getDeclaredFields()) {
-                field.setAccessible(true);
-                field.set(target, field.get(state));
-            }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public T getState() {
-        return state;
-    }
+    T deepClone(T obj);
 
 }

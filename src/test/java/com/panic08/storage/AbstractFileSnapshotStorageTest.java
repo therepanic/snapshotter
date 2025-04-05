@@ -23,6 +23,7 @@ package com.panic08.storage;
 import com.esotericsoftware.kryo.Kryo;
 import com.panic08.Snapshot;
 import com.panic08.AbstractFileSnapshotStorage;
+import com.panic08.strategy.KryoSnapshotStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,7 +87,7 @@ abstract class AbstractFileSnapshotStorageTest {
     @Test
     void testSaveAndLoad() {
         DummyState state = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(state, kryo);
+        Snapshot<DummyState> snapshot = new Snapshot<>(state, new KryoSnapshotStrategy<>(kryo));
         String filePath = tempDir.resolve("snapshot1").toString();
         storage.save(filePath, snapshot);
 
@@ -100,8 +101,8 @@ abstract class AbstractFileSnapshotStorageTest {
         String firstPath = tempDir.resolve("first").toString();
         String secondPath = tempDir.resolve("second").toString();
 
-        storage.save(firstPath, new Snapshot<>(new DummyState("one"), kryo));
-        storage.save(secondPath, new Snapshot<>(new DummyState("two"), kryo));
+        storage.save(firstPath, new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
+        storage.save(secondPath, new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
 
         Snapshot<DummyState> last = storage.loadLast();
         assertNotNull(last);
@@ -111,7 +112,7 @@ abstract class AbstractFileSnapshotStorageTest {
     @Test
     void testHasSnapshot() {
         String filePath = tempDir.resolve("exists").toString();
-        storage.save(filePath, new Snapshot<>(new DummyState("value"), kryo));
+        storage.save(filePath, new Snapshot<>(new DummyState("value"), new KryoSnapshotStrategy<>(kryo)));
 
         assertTrue(storage.hasSnapshot(filePath));
         assertFalse(storage.hasSnapshot(tempDir.resolve("missing").toString()));
@@ -120,7 +121,7 @@ abstract class AbstractFileSnapshotStorageTest {
     @Test
     void testRemove() {
         String filePath = tempDir.resolve("temp").toString();
-        storage.save(filePath, new Snapshot<>(new DummyState("to delete"), kryo));
+        storage.save(filePath, new Snapshot<>(new DummyState("to delete"), new KryoSnapshotStrategy<>(kryo)));
 
         storage.remove(filePath);
         assertFalse(storage.hasSnapshot(filePath));
@@ -132,8 +133,8 @@ abstract class AbstractFileSnapshotStorageTest {
         String path1 = tempDir.resolve("one").toString();
         String path2 = tempDir.resolve("two").toString();
 
-        storage.save(path1, new Snapshot<>(new DummyState("1"), kryo));
-        storage.save(path2, new Snapshot<>(new DummyState("2"), kryo));
+        storage.save(path1, new Snapshot<>(new DummyState("1"), new KryoSnapshotStrategy<>(kryo)));
+        storage.save(path2, new Snapshot<>(new DummyState("2"), new KryoSnapshotStrategy<>(kryo)));
 
         storage.clear();
 

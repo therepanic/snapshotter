@@ -23,6 +23,7 @@ package com.panic08;
 import com.esotericsoftware.kryo.Kryo;
 import com.panic08.storage.BytesFileSnapshotStorage;
 import com.panic08.storage.MemorySnapshotStorage;
+import com.panic08.strategy.KryoSnapshotStrategy;
 
 import java.util.Map;
 
@@ -65,11 +66,11 @@ public final class Snap<T> {
     }
 
     public void save() {
-        storage.save("default", new Snapshot<>(target, kryo));
+        storage.save("default", new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
     }
 
     public void save(String name) {
-        storage.save(name, new Snapshot<>(target, kryo));
+        storage.save(name, new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
     }
 
     public boolean restore() {
@@ -125,11 +126,11 @@ public final class Snap<T> {
 
     public void runAndSave(Runnable action) {
         action.run();
-        storage.save("default", new Snapshot<>(target, kryo));
+        storage.save("default", new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
     }
 
     public void runAndSave(Runnable action, String name) {
         action.run();
-        storage.save(name, new Snapshot<>(target, kryo));
+        storage.save(name, new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
     }
 }

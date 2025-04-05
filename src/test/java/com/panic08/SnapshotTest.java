@@ -20,6 +20,7 @@
 
 package com.panic08;
 import com.esotericsoftware.kryo.Kryo;
+import com.panic08.strategy.KryoSnapshotStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +59,7 @@ class SnapshotTest {
     @Test
     void testSnapshotStoresDeepCopy() {
         DummyState original = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original, kryo);
+        Snapshot<DummyState> snapshot = new Snapshot<>(original, new KryoSnapshotStrategy<>(kryo));
         original.setData("modified");
         assertEquals("data", snapshot.getState().getData());
     }
@@ -67,7 +68,7 @@ class SnapshotTest {
     void testRestore() {
         DummyState original = new DummyState("initial");
         DummyState target = new DummyState("empty");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original, kryo);
+        Snapshot<DummyState> snapshot = new Snapshot<>(original, new KryoSnapshotStrategy<>(kryo));
         snapshot.restore(target);
         assertEquals("initial", target.getData());
     }

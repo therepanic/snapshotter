@@ -18,35 +18,36 @@
  * THE SOFTWARE.
  */
 
-package com.panic08;
+package com.panic08.strategy;
 
-import java.lang.reflect.Field;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.panic08.SnapshotStrategy;
 
-public class Snapshot<T> {
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
-    private final T state;
+public class KryoSnapshotStrategy<T> implements SnapshotStrategy<T> {
 
-    public Snapshot(T state, SnapshotStrategy<T> strategy) {
-        this.state = strategy.deepClone(state);
+    private final Kryo kryo;
+
+    public KryoSnapshotStrategy(Kryo kryo) {
+        this.kryo = kryo;
     }
 
-    public Snapshot() {
-        this.state = null;
-    }
-
-    public void restore(T target) {
-        try {
-            for (Field field : state.getClass().getDeclaredFields()) {
-                field.setAccessible(true);
-                field.set(target, field.get(state));
-            }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public T getState() {
-        return state;
+    @SuppressWarnings("unchecked")
+    @Override
+    public T deepClone(T obj) {
+        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+        Output output = new Output(byteOutput);
+        kryo.writeObject(output, obj);
+        output.close();
+        ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
+        Input input = new Input(byteInput);
+        T cloned = (T) kryo.readObject(input, obj.getClass());
+        input.close();
+        return cloned;
     }
 
 }
