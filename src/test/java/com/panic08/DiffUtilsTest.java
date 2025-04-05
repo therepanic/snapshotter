@@ -18,7 +18,7 @@
  * THE SOFTWARE.
  */
 
-import com.panic08.DiffUtils;
+package com.panic08;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

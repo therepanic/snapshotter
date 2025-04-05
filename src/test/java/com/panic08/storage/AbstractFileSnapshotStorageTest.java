@@ -18,7 +18,7 @@
  * THE SOFTWARE.
  */
 
-package storage;
+package com.panic08.storage;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.panic08.Snapshot;

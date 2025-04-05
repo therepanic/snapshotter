@@ -18,14 +18,16 @@
  * THE SOFTWARE.
  */
 
+package com.panic08.storage;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.panic08.Snapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-class SnapshotTest {
+class MemorySnapshotStorageTest {
 
     static class DummyState {
         private String data;
@@ -40,12 +42,9 @@ class SnapshotTest {
         public String getData() {
             return data;
         }
-
-        public void setData(String data) {
-            this.data = data;
-        }
     }
 
+    private MemorySnapshotStorage<DummyState> storage;
     private Kryo kryo;
 
     @BeforeEach
@@ -53,22 +52,45 @@ class SnapshotTest {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
         this.kryo = newKryo;
+        this.storage = new MemorySnapshotStorage<>();
     }
 
     @Test
-    void testSnapshotStoresDeepCopy() {
-        DummyState original = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original, kryo);
-        original.setData("modified");
-        assertEquals("data", snapshot.getState().getData());
+    void testSaveAndLoad() {
+        DummyState state = new DummyState("data");
+        Snapshot<DummyState> snapshot = new Snapshot<>(state, kryo);
+        storage.save("snapshot1", snapshot);
+        assertNotNull(storage.load("snapshot1"));
+        assertEquals("data", storage.load("snapshot1").getState().getData());
     }
 
     @Test
-    void testRestore() {
-        DummyState original = new DummyState("initial");
-        DummyState target = new DummyState("empty");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original, kryo);
-        snapshot.restore(target);
-        assertEquals("initial", target.getData());
+    void testLoadLast() {
+        storage.save("first", new Snapshot<>(new DummyState("one"), kryo));
+        storage.save("second", new Snapshot<>(new DummyState("two"), kryo));
+        assertEquals("two", storage.loadLast().getState().getData());
+    }
+
+    @Test
+    void testHasSnapshot() {
+        storage.save("exists", new Snapshot<>(new DummyState("value"), kryo));
+        assertTrue(storage.hasSnapshot("exists"));
+        assertFalse(storage.hasSnapshot("missing"));
+    }
+
+    @Test
+    void testRemove() {
+        storage.save("temp", new Snapshot<>(new DummyState("to delete"), kryo));
+        storage.remove("temp");
+        assertFalse(storage.hasSnapshot("temp"));
+    }
+
+    @Test
+    void testClear() {
+        storage.save("one", new Snapshot<>(new DummyState("1"), kryo));
+        storage.save("two", new Snapshot<>(new DummyState("2"), kryo));
+        storage.clear();
+        assertNull(storage.loadLast());
     }
 }
+

@@ -18,10 +18,9 @@
  * THE SOFTWARE.
  */
 
-package storage;
+package com.panic08.storage;
 
 import com.panic08.AbstractFileSnapshotStorage;
-import com.panic08.storage.BytesFileSnapshotStorage;
 
 class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
 
