@@ -21,7 +21,6 @@
 package com.panic08;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.panic08.storage.BytesFileSnapshotStorage;
 import com.panic08.storage.MemorySnapshotStorage;
 import com.panic08.strategy.KryoSnapshotStrategy;
 
@@ -31,6 +30,7 @@ public final class Snap<T> {
 
     private final T target;
     private final SnapshotStorage<T> storage;
+    //TODO: You can't create an instance directly, you have to come up with an abstraction for it
     private final Kryo kryo;
 
     private Snap(T target, SnapshotStorage<T> storage, Kryo kryo) {
@@ -53,12 +53,6 @@ public final class Snap<T> {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
         return new Snap<>(target, storage, newKryo);
-    }
-
-    public static <T> Snap<T> ofBytes(T target) {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, new BytesFileSnapshotStorage<>(newKryo), newKryo);
     }
 
     public static <T> Snap<T> of(T target, SnapshotStorage<T> storage, Kryo kryo) {
