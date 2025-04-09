@@ -30,41 +30,40 @@ public final class Snap<T> {
 
     private final T target;
     private final SnapshotStorage<T> storage;
-    //TODO: You can't create an instance directly, you have to come up with an abstraction for it
-    private final Kryo kryo;
+    private final SnapshotStrategy<T> strategy;
 
-    private Snap(T target, SnapshotStorage<T> storage, Kryo kryo) {
+    private Snap(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
         this.target = target;
         this.storage = storage;
-        this.kryo = kryo;
+        this.strategy = strategy;
     }
 
     public static <T> Snap<T> of(T target) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, new MemorySnapshotStorage<>(), newKryo);
+        return new Snap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo));
     }
 
-    public static <T> Snap<T> of(T target, Kryo kryo) {
-        return new Snap<>(target, new MemorySnapshotStorage<>(), kryo);
+    public static <T> Snap<T> of(T target, SnapshotStrategy<T> strategy) {
+        return new Snap<>(target, new MemorySnapshotStorage<>(), strategy);
     }
 
     public static <T> Snap<T> of(T target, SnapshotStorage<T> storage) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, storage, newKryo);
+        return new Snap<>(target, storage, new KryoSnapshotStrategy<>(newKryo));
     }
 
-    public static <T> Snap<T> of(T target, SnapshotStorage<T> storage, Kryo kryo) {
-        return new Snap<>(target, storage, kryo);
+    public static <T> Snap<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
+        return new Snap<>(target, storage, strategy);
     }
 
     public void save() {
-        storage.save("default", new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
+        storage.save("default", new Snapshot<>(target, strategy));
     }
 
     public void save(String name) {
-        storage.save(name, new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
+        storage.save(name, new Snapshot<>(target, strategy));
     }
 
     public boolean restore() {
@@ -120,11 +119,11 @@ public final class Snap<T> {
 
     public void runAndSave(Runnable action) {
         action.run();
-        storage.save("default", new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
+        storage.save("default", new Snapshot<>(target, strategy));
     }
 
     public void runAndSave(Runnable action, String name) {
         action.run();
-        storage.save(name, new Snapshot<>(target, new KryoSnapshotStrategy<>(kryo)));
+        storage.save(name, new Snapshot<>(target, strategy));
     }
 }
