@@ -30,6 +30,10 @@ public class Snapshot<T> {
         this.state = strategy.deepClone(state);
     }
 
+    public Snapshot(T state) {
+        this.state = state;
+    }
+
     public Snapshot() {
         this.state = null;
     }

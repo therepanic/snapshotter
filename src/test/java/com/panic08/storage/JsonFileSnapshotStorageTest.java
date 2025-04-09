@@ -22,11 +22,11 @@ package com.panic08.storage;
 
 import com.panic08.AbstractFileSnapshotStorage;
 
-class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
+class JsonFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
 
     @Override
     protected AbstractFileSnapshotStorage<DummyState> createStorage() {
-        return new BytesFileSnapshotStorage<>();
+        return new JsonFileSnapshotStorage<>(DummyState.class);
     }
 
 }

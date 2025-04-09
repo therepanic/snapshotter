@@ -20,13 +20,39 @@
 
 package com.panic08.storage;
 
+import com.google.gson.Gson;
 import com.panic08.AbstractFileSnapshotStorage;
+import com.panic08.Snapshot;
 
-class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+
+public class JsonFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
+
+    private final Gson gson;
+    private final Type typeOfT;
+
+    public JsonFileSnapshotStorage(Gson gson, Type typeOfT) {
+        this.gson = gson;
+        this.typeOfT = typeOfT;
+    }
+
+    public JsonFileSnapshotStorage(Type typeOfT) {
+        this.gson = new Gson();
+        this.typeOfT = typeOfT;
+    }
 
     @Override
-    protected AbstractFileSnapshotStorage<DummyState> createStorage() {
-        return new BytesFileSnapshotStorage<>();
+    protected byte[] encode(Snapshot<T> snapshot) {
+        String encodedStr = gson.toJson(snapshot.getState());
+        return encodedStr.getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    protected Snapshot<T> decode(byte[] data) {
+        String str = new String(data, StandardCharsets.UTF_8);
+        T state = gson.fromJson(str, typeOfT);
+        return new Snapshot<>(state);
     }
 
 }
