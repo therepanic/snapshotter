@@ -112,6 +112,8 @@ class SnapSchedulerTest {
                 () -> "x"
         );
 
+        scheduler.start();
+
         assertTrue(scheduler.isRunning());
         scheduler.stop();
         assertFalse(scheduler.isRunning());

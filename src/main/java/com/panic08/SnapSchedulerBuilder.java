@@ -21,14 +21,16 @@
 package com.panic08;
 
 import java.time.Duration;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class SnapSchedulerBuilder<T> {
+public final class SnapSchedulerBuilder<T> {
 
+    private ScheduledExecutorService scheduler;
     private final Snap<T> snap;
     private Duration interval;
-    private BooleanSupplier condition;
+    private BooleanSupplier condition = () -> true;
     private Supplier<String> nameGenerator = () -> "default";
 
     public SnapSchedulerBuilder(Snap<T> snap) {
@@ -54,9 +56,18 @@ public class SnapSchedulerBuilder<T> {
         return saveAs(() -> name);
     }
 
+    public SnapSchedulerBuilder<T> scheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
+        this.scheduler = scheduledExecutorService;
+        return this;
+    }
+
     public SnapScheduler<T> build() {
         if (interval == null) throw new IllegalStateException("Interval must be set");
-        return new SnapScheduler<>(snap, interval, condition, nameGenerator);
+        if (scheduler == null) {
+            return new SnapScheduler<>(snap, interval, condition, nameGenerator);
+        } else {
+            return new SnapScheduler<>(scheduler, snap, interval, condition, nameGenerator);
+        }
     }
 
 }

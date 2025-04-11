@@ -48,8 +48,12 @@ class SnapSchedulerBuilderTest {
                 .build();
 
         assertNotNull(scheduler);
+
+        scheduler.start();
+
         assertTrue(scheduler.isRunning());
         scheduler.stop();
+        assertFalse(scheduler.isRunning());
     }
 
     @Test
