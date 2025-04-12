@@ -21,6 +21,9 @@
 package com.panic08;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -30,8 +33,9 @@ public final class SnapSchedulerBuilder<T> {
     private ScheduledExecutorService scheduler;
     private final Snap<T> snap;
     private Duration interval;
-    private BooleanSupplier condition = () -> true;
-    private Supplier<String> nameGenerator = () -> "default";
+    private BooleanSupplier condition;
+    private Supplier<String> nameGenerator;
+    private List<Future<?>> container;
 
     public SnapSchedulerBuilder(Snap<T> snap) {
         this.snap = snap;
@@ -61,12 +65,28 @@ public final class SnapSchedulerBuilder<T> {
         return this;
     }
 
+    public SnapSchedulerBuilder<T> container(List<Future<?>> container) {
+        this.container = container;
+        return this;
+    }
+
     public SnapScheduler<T> build() {
-        if (interval == null) throw new IllegalStateException("Interval must be set");
+        if (interval == null) {
+            throw new IllegalStateException("Interval must be set");
+        }
+        if (condition == null) {
+            condition = () -> true;
+        }
+        if (nameGenerator == null) {
+            nameGenerator = () -> "default";
+        }
+        if (container == null) {
+            container = new ArrayList<>();
+        }
         if (scheduler == null) {
-            return new SnapScheduler<>(snap, interval, condition, nameGenerator);
+            return new SnapScheduler<>(snap, interval, condition, nameGenerator, container);
         } else {
-            return new SnapScheduler<>(scheduler, snap, interval, condition, nameGenerator);
+            return new SnapScheduler<>(scheduler, snap, interval, condition, nameGenerator, container);
         }
     }
 

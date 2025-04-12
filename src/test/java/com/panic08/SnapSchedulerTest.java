@@ -23,6 +23,7 @@ package com.panic08;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,13 +45,14 @@ class SnapSchedulerTest {
                 snap,
                 Duration.ofMillis(100),
                 () -> true,
-                () -> "tick"
+                () -> "tick",
+                new ArrayList<>()
         );
 
         scheduler.start();
         TimeUnit.MILLISECONDS.sleep(250);
         obj.value = 50;
-        scheduler.stop();
+        scheduler.stopAll();
 
         snap.restore("tick");
 
@@ -66,13 +68,14 @@ class SnapSchedulerTest {
                 snap,
                 Duration.ofMillis(100),
                 () -> false,
-                () -> "nope"
+                () -> "nope",
+                new ArrayList<>()
         );
 
         scheduler.start();
         obj.value = 999;
         TimeUnit.MILLISECONDS.sleep(200);
-        scheduler.stop();
+        scheduler.stopAll();
 
         assertFalse(snap.hasSnapshot("nope"));
     }
@@ -87,13 +90,14 @@ class SnapSchedulerTest {
                 snap,
                 Duration.ofMillis(100),
                 () -> true,
-                () -> "snap-" + counter.incrementAndGet()
+                () -> "snap-" + counter.incrementAndGet(),
+                new ArrayList<>()
         );
 
         scheduler.start();
         obj.value = 1;
         TimeUnit.MILLISECONDS.sleep(400);
-        scheduler.stop();
+        scheduler.stopAll();
 
         assertTrue(snap.hasSnapshot("snap-1"));
         assertTrue(snap.hasSnapshot("snap-2"));
@@ -109,13 +113,14 @@ class SnapSchedulerTest {
                 snap,
                 Duration.ofMillis(100),
                 () -> true,
-                () -> "x"
+                () -> "x",
+                new ArrayList<>()
         );
 
         scheduler.start();
 
         assertTrue(scheduler.isRunning());
-        scheduler.stop();
+        scheduler.stopAll();
         assertFalse(scheduler.isRunning());
     }
 }

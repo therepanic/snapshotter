@@ -52,7 +52,7 @@ class SnapSchedulerBuilderTest {
         scheduler.start();
 
         assertTrue(scheduler.isRunning());
-        scheduler.stop();
+        scheduler.stopAll();
         assertFalse(scheduler.isRunning());
     }
 
@@ -71,7 +71,7 @@ class SnapSchedulerBuilderTest {
         scheduler.start();
         TimeUnit.MILLISECONDS.sleep(150);
         obj.x = 123;
-        scheduler.stop();
+        scheduler.stopAll();
 
         snap.restore("custom-name");
 

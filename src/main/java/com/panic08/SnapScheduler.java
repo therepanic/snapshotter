@@ -21,10 +21,8 @@
 package com.panic08;
 
 import java.time.Duration;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -36,55 +34,57 @@ public final class SnapScheduler<T> implements AutoCloseable {
     private final Duration interval;
     private final BooleanSupplier condition;
     private final Supplier<String> nameGenerator;
-    private ScheduledFuture<?> task;
+    private final List<Future<?>> tasks;
 
-    public SnapScheduler(ScheduledExecutorService scheduler, Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator) {
+    public SnapScheduler(ScheduledExecutorService scheduler, Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, List<Future<?>> tasks) {
         this.scheduler = scheduler;
         this.ownsScheduler = false;
         this.snap = snap;
         this.interval = interval;
         this.condition = condition;
         this.nameGenerator = nameGenerator;
+        this.tasks = tasks;
     }
 
-    public SnapScheduler(Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator) {
-        this.scheduler = Executors.newScheduledThreadPool(1);
+    public SnapScheduler(Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, List<Future<?>> tasks) {
+        this.scheduler = defaultScheduler();
         this.ownsScheduler = true;
         this.snap = snap;
         this.interval = interval;
         this.condition = condition;
         this.nameGenerator = nameGenerator;
+        this.tasks = tasks;
     }
 
     public void start() {
-        if (task != null) {
-            throw new IllegalStateException("Scheduler is already running");
-        }
-        task = scheduler.scheduleAtFixedRate(() -> {
+        Future<?> task = scheduler.scheduleAtFixedRate(() -> {
             if (condition.getAsBoolean()) {
-                snap.save(nameGenerator.get());
+                synchronized (snap) {
+                    snap.save(nameGenerator.get());
+                }
             }
         }, 0, interval.toMillis(), TimeUnit.MILLISECONDS);
+        tasks.add(task);
     }
 
-    public void stop() {
-        if (task == null) {
-            throw new IllegalStateException("Scheduler is not running");
+    public void stopAll() {
+        for (Future<?> task : tasks) {
+            task.cancel(false);
         }
-        task.cancel(false);
-        task = null;
+        tasks.clear();
     }
 
     public boolean isRunning() {
-        return task != null && !task.isDone();
+        return !tasks.isEmpty();
+    }
+
+    public static ScheduledExecutorService defaultScheduler() {
+        return Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @Override
     public void close() throws Exception {
-        if (task != null) {
-            task.cancel(false);
-            task = null;
-        }
+        stopAll();
         if (ownsScheduler) {
             scheduler.shutdown();
             try {
