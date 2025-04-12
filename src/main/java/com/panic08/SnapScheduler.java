@@ -36,7 +36,7 @@ public final class SnapScheduler<T> implements AutoCloseable {
     private final Duration interval;
     private final BooleanSupplier condition;
     private final Supplier<String> nameGenerator;
-    private volatile ScheduledFuture<?> task;
+    private ScheduledFuture<?> task;
 
     public SnapScheduler(ScheduledExecutorService scheduler, Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator) {
         this.scheduler = scheduler;
@@ -56,7 +56,7 @@ public final class SnapScheduler<T> implements AutoCloseable {
         this.nameGenerator = nameGenerator;
     }
 
-    public synchronized void start() {
+    public void start() {
         if (task != null) {
             throw new IllegalStateException("Scheduler is already running");
         }
@@ -67,7 +67,7 @@ public final class SnapScheduler<T> implements AutoCloseable {
         }, 0, interval.toMillis(), TimeUnit.MILLISECONDS);
     }
 
-    public synchronized void stop() {
+    public void stop() {
         if (task == null) {
             throw new IllegalStateException("Scheduler is not running");
         }
@@ -81,20 +81,18 @@ public final class SnapScheduler<T> implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        synchronized (this) {
-            if (task != null) {
-                task.cancel(false);
-                task = null;
-            }
-            if (ownsScheduler) {
-                scheduler.shutdown();
-                try {
-                    if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
-                        scheduler.shutdownNow();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+        if (task != null) {
+            task.cancel(false);
+            task = null;
+        }
+        if (ownsScheduler) {
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }
