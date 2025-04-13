@@ -26,7 +26,7 @@ import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public final class SnapScheduler<T> implements AutoCloseable {
+public class SnapScheduler<T> implements AutoCloseable {
 
     private final ScheduledExecutorService scheduler;
     private final boolean ownsScheduler;

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class Snap<T> {
+public class Snap<T> {
 
     private final T target;
     private final SnapshotStorage<T> storage;
@@ -65,9 +65,7 @@ public final class Snap<T> {
     }
 
     public void save() {
-        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
-        storage.save("default", snapshot);
-        notify(new SnapshotSavedEvent<>("default", target, snapshot));
+        save("default");
     }
 
     public void save(String name) {
@@ -77,13 +75,7 @@ public final class Snap<T> {
     }
 
     public boolean restore() {
-        Snapshot<T> snapshot = storage.load("default");
-        if (snapshot == null) {
-            return false;
-        }
-        snapshot.restore(target);
-        notify(new SnapshotRestoredEvent<>("default", target));
-        return true;
+        return restore("default");
     }
 
     public boolean restore(String name) {
@@ -111,7 +103,7 @@ public final class Snap<T> {
     }
 
     public Map<String, String> diff() {
-        return DiffUtils.diff(target, storage.load("default").getState());
+        return diff("default");
     }
 
     public boolean hasSnapshot(String name) {
@@ -123,7 +115,7 @@ public final class Snap<T> {
     }
 
     public void remove() {
-        storage.remove("default");
+        remove("default");
     }
 
     public void remove(String name) {

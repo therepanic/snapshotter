@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public final class SnapSchedulerBuilder<T> {
+public class SnapSchedulerBuilder<T> {
 
     private ScheduledExecutorService scheduler;
     private final Snap<T> snap;
