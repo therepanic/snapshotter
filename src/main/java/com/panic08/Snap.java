@@ -132,16 +132,12 @@ public final class Snap<T> {
 
     public void runAndSave(Runnable action) {
         action.run();
-        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
-        storage.save("default", snapshot);
-        notify(new SnapshotSavedEvent<>("default", target, snapshot));
+        save();
     }
 
     public void runAndSave(Runnable action, String name) {
         action.run();
-        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
-        storage.save(name, snapshot);
-        notify(new SnapshotSavedEvent<>(name, target, snapshot));
+        save(name);
     }
 
     public SnapSchedulerBuilder<T> schedule() {
