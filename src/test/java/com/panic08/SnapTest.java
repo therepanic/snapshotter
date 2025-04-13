@@ -19,10 +19,13 @@
  */
 
 package com.panic08;
+import com.panic08.event.SnapshotRestoredEvent;
+import com.panic08.event.SnapshotSavedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -157,5 +160,36 @@ class SnapTest {
         boolean restored = snap.restore("named");
         assertTrue(restored);
         assertEquals("runAndSaveNamed", target.getData());
+    }
+
+    @Test
+    void listenerShouldBeNotifiedOnSaveAndRestoreWithDetails() {
+        DummyState dummy = new DummyState();
+        dummy.setData("initial");
+        Snap<DummyState> snap = Snap.of(dummy);
+
+        AtomicBoolean saveCalled = new AtomicBoolean(false);
+        AtomicBoolean restoreCalled = new AtomicBoolean(false);
+
+        snap.addListener(event -> {
+            if (event instanceof SnapshotSavedEvent) {
+                saveCalled.set(true);
+                assertEquals("default", event.getName());
+                assertEquals("initial", event.getTarget().getData());
+                assertNotNull(((SnapshotSavedEvent<DummyState>) event).getSnapshot());
+            } else if (event instanceof SnapshotRestoredEvent) {
+                restoreCalled.set(true);
+                assertEquals("default", event.getName());
+                assertEquals("initial", event.getTarget().getData());
+            }
+        });
+
+        snap.save();
+        assertTrue(saveCalled.get());
+
+        dummy.setData("changed");
+        snap.restore();
+        assertTrue(restoreCalled.get());
+        assertEquals("initial", dummy.getData());
     }
 }

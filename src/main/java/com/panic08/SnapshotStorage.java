@@ -20,13 +20,15 @@
 
 package com.panic08;
 
+import java.util.Map;
+
 public interface SnapshotStorage<T> {
 
     void save(String name, Snapshot<T> snapshot);
 
     Snapshot<T> load(String name);
 
-    Snapshot<T> loadLast();
+    Map.Entry<String, Snapshot<T>> loadLastEntry();
 
     boolean hasSnapshot(String name);
 

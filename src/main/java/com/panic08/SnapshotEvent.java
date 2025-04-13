@@ -18,46 +18,24 @@
  * THE SOFTWARE.
  */
 
-package com.panic08.storage;
+package com.panic08;
 
-import com.panic08.Snapshot;
-import com.panic08.SnapshotStorage;
+public abstract class SnapshotEvent<T> {
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+    private final String name;
+    private final T target;
 
-public class MemorySnapshotStorage<T> implements SnapshotStorage<T> {
-
-    private final Map<String, Snapshot<T>> snapshots = new LinkedHashMap<>();
-
-    @Override
-    public void save(String name, Snapshot<T> snapshot) {
-        snapshots.put(name, snapshot);
+    public SnapshotEvent(String name, T target) {
+        this.name = name;
+        this.target = target;
     }
 
-    @Override
-    public Snapshot<T> load(String name) {
-        return snapshots.get(name);
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public Map.Entry<String, Snapshot<T>> loadLastEntry() {
-        return snapshots.entrySet().stream().reduce((first, second) -> second).orElse(null);
-    }
-
-    @Override
-    public boolean hasSnapshot(String name) {
-        return snapshots.containsKey(name);
-    }
-
-    @Override
-    public void clear() {
-        snapshots.clear();
-    }
-
-    @Override
-    public void remove(String name) {
-        snapshots.remove(name);
+    public T getTarget() {
+        return target;
     }
 
 }

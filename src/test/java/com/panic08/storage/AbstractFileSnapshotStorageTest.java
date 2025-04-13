@@ -31,6 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -97,16 +98,16 @@ abstract class AbstractFileSnapshotStorageTest {
     }
 
     @Test
-    void testLoadLast() {
+    void testLoadLastEntry() {
         String firstPath = tempDir.resolve("first").toString();
         String secondPath = tempDir.resolve("second").toString();
 
         storage.save(firstPath, new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
         storage.save(secondPath, new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
 
-        Snapshot<DummyState> last = storage.loadLast();
+        Map.Entry<String, Snapshot<DummyState>> last = storage.loadLastEntry();
         assertNotNull(last);
-        assertEquals("two", last.getState().getData());
+        assertEquals("two", last.getValue().getState().getData());
     }
 
     @Test
@@ -138,7 +139,7 @@ abstract class AbstractFileSnapshotStorageTest {
 
         storage.clear();
 
-        assertNull(storage.loadLast());
+        assertNull(storage.loadLastEntry());
         assertFalse(new File(path1).exists());
         assertFalse(new File(path2).exists());
     }

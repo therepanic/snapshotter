@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -60,12 +61,12 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
     }
 
     @Override
-    public Snapshot<T> loadLast() {
+    public Map.Entry<String, Snapshot<T>> loadLastEntry() {
         String lastPath = snapshots.keySet().stream().reduce((first, second) -> second).orElse(null);
         if (lastPath == null) {
             return null;
         }
-        return load(lastPath);
+        return new AbstractMap.SimpleEntry<>(lastPath, load(lastPath));
     }
 
     @Override

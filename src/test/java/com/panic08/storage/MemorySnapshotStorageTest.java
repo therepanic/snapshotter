@@ -66,10 +66,10 @@ class MemorySnapshotStorageTest {
     }
 
     @Test
-    void testLoadLast() {
+    void testLoadLastEntry() {
         storage.save("first", new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
         storage.save("second", new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
-        assertEquals("two", storage.loadLast().getState().getData());
+        assertEquals("two", storage.loadLastEntry().getValue().getState().getData());
     }
 
     @Test
@@ -91,7 +91,7 @@ class MemorySnapshotStorageTest {
         storage.save("one", new Snapshot<>(new DummyState("1"), new KryoSnapshotStrategy<>(kryo)));
         storage.save("two", new Snapshot<>(new DummyState("2"), new KryoSnapshotStrategy<>(kryo)));
         storage.clear();
-        assertNull(storage.loadLast());
+        assertNull(storage.loadLastEntry());
     }
 }
 

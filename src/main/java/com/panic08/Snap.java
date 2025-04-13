@@ -21,9 +21,13 @@
 package com.panic08;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.panic08.event.SnapshotRestoredEvent;
+import com.panic08.event.SnapshotSavedEvent;
 import com.panic08.storage.MemorySnapshotStorage;
 import com.panic08.strategy.KryoSnapshotStrategy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public final class Snap<T> {
@@ -31,39 +35,45 @@ public final class Snap<T> {
     private final T target;
     private final SnapshotStorage<T> storage;
     private final SnapshotStrategy<T> strategy;
+    private final List<SnapListener<T>> listeners;
 
-    private Snap(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
+    private Snap(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy, List<SnapListener<T>> listeners) {
         this.target = target;
         this.storage = storage;
         this.strategy = strategy;
+        this.listeners = listeners;
     }
 
     public static <T> Snap<T> of(T target) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo));
+        return new Snap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
     public static <T> Snap<T> of(T target, SnapshotStrategy<T> strategy) {
-        return new Snap<>(target, new MemorySnapshotStorage<>(), strategy);
+        return new Snap<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
     }
 
     public static <T> Snap<T> of(T target, SnapshotStorage<T> storage) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, storage, new KryoSnapshotStrategy<>(newKryo));
+        return new Snap<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
     public static <T> Snap<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
-        return new Snap<>(target, storage, strategy);
+        return new Snap<>(target, storage, strategy, new ArrayList<>());
     }
 
     public void save() {
-        storage.save("default", new Snapshot<>(target, strategy));
+        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
+        storage.save("default", snapshot);
+        notify(new SnapshotSavedEvent<>("default", target, snapshot));
     }
 
     public void save(String name) {
-        storage.save(name, new Snapshot<>(target, strategy));
+        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
+        storage.save(name, snapshot);
+        notify(new SnapshotSavedEvent<>(name, target, snapshot));
     }
 
     public boolean restore() {
@@ -72,6 +82,7 @@ public final class Snap<T> {
             return false;
         }
         snapshot.restore(target);
+        notify(new SnapshotRestoredEvent<>("default", target));
         return true;
     }
 
@@ -81,15 +92,17 @@ public final class Snap<T> {
             return false;
         }
         snapshot.restore(target);
+        notify(new SnapshotRestoredEvent<>(name, target));
         return true;
     }
 
     public boolean restoreLast() {
-        Snapshot<T> snapshot = storage.loadLast();
-        if (snapshot == null) {
+        Map.Entry<String, Snapshot<T>> snapshotEntry = storage.loadLastEntry();
+        if (snapshotEntry.getValue() == null) {
             return false;
         }
-        snapshot.restore(target);
+        snapshotEntry.getValue().restore(target);
+        notify(new SnapshotRestoredEvent<>(snapshotEntry.getKey(), target));
         return true;
     }
 
@@ -119,16 +132,34 @@ public final class Snap<T> {
 
     public void runAndSave(Runnable action) {
         action.run();
-        storage.save("default", new Snapshot<>(target, strategy));
+        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
+        storage.save("default", snapshot);
+        notify(new SnapshotSavedEvent<>("default", target, snapshot));
     }
 
     public void runAndSave(Runnable action, String name) {
         action.run();
-        storage.save(name, new Snapshot<>(target, strategy));
+        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
+        storage.save(name, snapshot);
+        notify(new SnapshotSavedEvent<>(name, target, snapshot));
     }
 
     public SnapSchedulerBuilder<T> schedule() {
         return new SnapSchedulerBuilder<>(this);
+    }
+
+    public void addListener(SnapListener<T> listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(SnapListener<T> listener) {
+        listeners.remove(listener);
+    }
+
+    private void notify(SnapshotEvent<T> event) {
+        for (SnapListener<T> listener : listeners) {
+            listener.onEvent(event);
+        }
     }
 
 }
