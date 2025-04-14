@@ -112,6 +112,16 @@ class SnapTest {
     }
 
     @Test
+    void testDiffBetweenTwoSnapshots() {
+        snap.save("snap1");
+        target.setData("first");
+        snap.save("snap2");
+        Map<String, String> diff = snap.diff("snap1", "snap2");
+        assertFalse(diff.isEmpty());
+        assertEquals("initial -> first", diff.get("data"));
+    }
+
+    @Test
     void testHasSnapshot() {
         snap.save();
         assertTrue(snap.hasSnapshot("default"));

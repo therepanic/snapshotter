@@ -106,6 +106,10 @@ public class Snap<T> {
         return diff("default");
     }
 
+    public Map<String, String> diff(String name1, String name2) {
+        return DiffUtils.diff(storage.load(name2).getState(), storage.load(name1).getState());
+    }
+
     public boolean hasSnapshot(String name) {
         return storage.hasSnapshot(name);
     }
