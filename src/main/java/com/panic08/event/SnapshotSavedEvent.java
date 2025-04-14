@@ -21,9 +21,9 @@
 package com.panic08.event;
 
 import com.panic08.Snapshot;
-import com.panic08.SnapshotEvent;
+import com.panic08.AbstractSnapshotEvent;
 
-public class SnapshotSavedEvent<T> extends SnapshotEvent<T> {
+public class SnapshotSavedEvent<T> extends AbstractSnapshotEvent<T> {
 
     private final Snapshot<T> snapshot;
 

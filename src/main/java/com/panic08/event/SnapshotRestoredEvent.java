@@ -20,9 +20,9 @@
 
 package com.panic08.event;
 
-import com.panic08.SnapshotEvent;
+import com.panic08.AbstractSnapshotEvent;
 
-public class SnapshotRestoredEvent<T> extends SnapshotEvent<T> {
+public class SnapshotRestoredEvent<T> extends AbstractSnapshotEvent<T> {
 
     public SnapshotRestoredEvent(String name, T target) {
         super(name, target);

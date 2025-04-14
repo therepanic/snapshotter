@@ -20,12 +20,12 @@
 
 package com.panic08;
 
-public abstract class SnapshotEvent<T> {
+public abstract class AbstractSnapshotEvent<T> {
 
     private final String name;
     private final T target;
 
-    public SnapshotEvent(String name, T target) {
+    public AbstractSnapshotEvent(String name, T target) {
         this.name = name;
         this.target = target;
     }

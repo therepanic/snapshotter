@@ -22,6 +22,6 @@ package com.panic08;
 
 public interface SnapListener<T> {
 
-    void onEvent(SnapshotEvent<T> event);
+    void onEvent(AbstractSnapshotEvent<T> event);
 
 }

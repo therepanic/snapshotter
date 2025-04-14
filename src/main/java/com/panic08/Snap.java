@@ -144,7 +144,7 @@ public class Snap<T> {
         listeners.remove(listener);
     }
 
-    private void notify(SnapshotEvent<T> event) {
+    private void notify(AbstractSnapshotEvent<T> event) {
         for (SnapListener<T> listener : listeners) {
             listener.onEvent(event);
         }
