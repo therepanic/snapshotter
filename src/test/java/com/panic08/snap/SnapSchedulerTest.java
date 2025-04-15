@@ -46,6 +46,7 @@ class SnapSchedulerTest {
                 Duration.ofMillis(100),
                 () -> true,
                 () -> "tick",
+                Duration.ofMillis(0),
                 new ArrayList<>()
         );
 
@@ -69,6 +70,7 @@ class SnapSchedulerTest {
                 Duration.ofMillis(100),
                 () -> false,
                 () -> "nope",
+                Duration.ofMillis(0),
                 new ArrayList<>()
         );
 
@@ -91,6 +93,7 @@ class SnapSchedulerTest {
                 Duration.ofMillis(100),
                 () -> true,
                 () -> "snap-" + counter.incrementAndGet(),
+                Duration.ofMillis(0),
                 new ArrayList<>()
         );
 
@@ -114,6 +117,7 @@ class SnapSchedulerTest {
                 Duration.ofMillis(100),
                 () -> true,
                 () -> "x",
+                Duration.ofMillis(0),
                 new ArrayList<>()
         );
 

@@ -30,12 +30,13 @@ import java.util.function.Supplier;
 
 public class SnapSchedulerBuilder<T> {
 
-    private ScheduledExecutorService scheduler;
     private final Snap<T> snap;
+    private ScheduledExecutorService scheduler;
     private Duration interval;
     private BooleanSupplier condition;
     private Supplier<String> nameGenerator;
     private List<Future<?>> container;
+    private Duration initialDelay;
 
     public SnapSchedulerBuilder(Snap<T> snap) {
         this.snap = snap;
@@ -70,6 +71,11 @@ public class SnapSchedulerBuilder<T> {
         return this;
     }
 
+    public SnapSchedulerBuilder<T> initialDelay(Duration initialDelay) {
+        this.initialDelay = initialDelay;
+        return this;
+    }
+
     public SnapScheduler<T> build() {
         if (interval == null) {
             throw new IllegalStateException("Interval must be set");
@@ -83,10 +89,13 @@ public class SnapSchedulerBuilder<T> {
         if (container == null) {
             container = new ArrayList<>();
         }
+        if (initialDelay == null) {
+            initialDelay = Duration.ofMillis(0);
+        }
         if (scheduler == null) {
-            return new SnapScheduler<>(snap, interval, condition, nameGenerator, container);
+            return new SnapScheduler<>(snap, interval, condition, nameGenerator, initialDelay, container);
         } else {
-            return new SnapScheduler<>(scheduler, snap, interval, condition, nameGenerator, container);
+            return new SnapScheduler<>(scheduler, snap, interval, condition, nameGenerator, initialDelay, container);
         }
     }
 

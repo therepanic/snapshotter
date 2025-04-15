@@ -34,25 +34,28 @@ public class SnapScheduler<T> implements AutoCloseable {
     private final Duration interval;
     private final BooleanSupplier condition;
     private final Supplier<String> nameGenerator;
+    private final Duration initialDelay;
     private final List<Future<?>> tasks;
 
-    public SnapScheduler(ScheduledExecutorService scheduler, Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, List<Future<?>> tasks) {
+    public SnapScheduler(ScheduledExecutorService scheduler, Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
         this.scheduler = scheduler;
         this.ownsScheduler = false;
         this.snap = snap;
         this.interval = interval;
         this.condition = condition;
         this.nameGenerator = nameGenerator;
+        this.initialDelay = initialDelay;
         this.tasks = tasks;
     }
 
-    public SnapScheduler(Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, List<Future<?>> tasks) {
+    public SnapScheduler(Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
         this.scheduler = defaultScheduler();
         this.ownsScheduler = true;
         this.snap = snap;
         this.interval = interval;
         this.condition = condition;
         this.nameGenerator = nameGenerator;
+        this.initialDelay = initialDelay;
         this.tasks = tasks;
     }
 
@@ -63,7 +66,7 @@ public class SnapScheduler<T> implements AutoCloseable {
                     snap.save(nameGenerator.get());
                 }
             }
-        }, 0, interval.toMillis(), TimeUnit.MILLISECONDS);
+        }, initialDelay.toMillis(), interval.toMillis(), TimeUnit.MILLISECONDS);
         tasks.add(task);
     }
 
