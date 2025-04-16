@@ -21,6 +21,7 @@
 package com.panic08.snap;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.panic08.snap.event.SnapshotRemovedEvent;
 import com.panic08.snap.event.SnapshotRestoredEvent;
 import com.panic08.snap.event.SnapshotSavedEvent;
 import com.panic08.snap.storage.MemorySnapshotStorage;
@@ -124,6 +125,7 @@ public class Snap<T> {
 
     public void remove(String name) {
         storage.remove(name);
+        notify(new SnapshotRemovedEvent<>(name, target));
     }
 
     public void runAndSave(Runnable action) {
