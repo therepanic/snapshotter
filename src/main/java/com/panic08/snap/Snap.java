@@ -21,139 +21,66 @@
 package com.panic08.snap;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.panic08.snap.event.SnapshotRemovedEvent;
-import com.panic08.snap.event.SnapshotRestoredEvent;
-import com.panic08.snap.event.SnapshotSavedEvent;
 import com.panic08.snap.storage.MemorySnapshotStorage;
 import com.panic08.snap.strategy.KryoSnapshotStrategy;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class Snap<T> {
+public interface Snap<T> {
 
-    private final T target;
-    private final SnapshotStorage<T> storage;
-    private final SnapshotStrategy<T> strategy;
-    private final List<SnapListener<T>> listeners;
-
-    private Snap(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy, List<SnapListener<T>> listeners) {
-        this.target = target;
-        this.storage = storage;
-        this.strategy = strategy;
-        this.listeners = listeners;
-    }
-
-    public static <T> Snap<T> of(T target) {
+    static <T> DefaultSnap<T> of(T target) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
+        return new DefaultSnap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
-    public static <T> Snap<T> of(T target, SnapshotStrategy<T> strategy) {
-        return new Snap<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
+    static <T> DefaultSnap<T> of(T target, SnapshotStrategy<T> strategy) {
+        return new DefaultSnap<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
     }
 
-    public static <T> Snap<T> of(T target, SnapshotStorage<T> storage) {
+    static <T> DefaultSnap<T> of(T target, SnapshotStorage<T> storage) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new Snap<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
+        return new DefaultSnap<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
-    public static <T> Snap<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
-        return new Snap<>(target, storage, strategy, new ArrayList<>());
+    static <T> DefaultSnap<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
+        return new DefaultSnap<>(target, storage, strategy, new ArrayList<>());
     }
 
-    public void save() {
-        save("default");
-    }
+    void save();
 
-    public void save(String name) {
-        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
-        storage.save(name, snapshot);
-        notify(new SnapshotSavedEvent<>(name, target, snapshot));
-    }
+    void save(String name);
 
-    public boolean restore() {
-        return restore("default");
-    }
+    boolean restore();
 
-    public boolean restore(String name) {
-        Snapshot<T> snapshot = storage.load(name);
-        if (snapshot == null) {
-            return false;
-        }
-        snapshot.restore(target);
-        notify(new SnapshotRestoredEvent<>(name, target));
-        return true;
-    }
+    boolean restore(String name);
 
-    public boolean restoreLast() {
-        Map.Entry<String, Snapshot<T>> snapshotEntry = storage.loadLastEntry();
-        if (snapshotEntry.getValue() == null) {
-            return false;
-        }
-        snapshotEntry.getValue().restore(target);
-        notify(new SnapshotRestoredEvent<>(snapshotEntry.getKey(), target));
-        return true;
-    }
+    boolean restoreLast();
 
-    public Map<String, String> diff(String name) {
-        return DiffUtils.diff(target, storage.load(name).getState());
-    }
+    Map<String, String> diff();
 
-    public Map<String, String> diff() {
-        return diff("default");
-    }
+    Map<String, String> diff(String name);
 
-    public Map<String, String> diff(String name1, String name2) {
-        return DiffUtils.diff(storage.load(name2).getState(), storage.load(name1).getState());
-    }
+    Map<String, String> diff(String name1, String name2);
 
-    public boolean hasSnapshot(String name) {
-        return storage.hasSnapshot(name);
-    }
+    boolean hasSnapshot(String name);
 
-    public void clear() {
-        storage.clear();
-    }
+    void clear();
 
-    public void remove() {
-        remove("default");
-    }
+    void remove();
 
-    public void remove(String name) {
-        storage.remove(name);
-        notify(new SnapshotRemovedEvent<>(name, target));
-    }
+    void remove(String name);
 
-    public void runAndSave(Runnable action) {
-        action.run();
-        save();
-    }
+    void runAndSave(Runnable action);
 
-    public void runAndSave(Runnable action, String name) {
-        action.run();
-        save(name);
-    }
+    void runAndSave(Runnable action, String name);
 
-    public SnapSchedulerBuilder<T> schedule() {
-        return new SnapSchedulerBuilder<>(this);
-    }
+    SnapSchedulerBuilder<T> schedule();
 
-    public void addListener(SnapListener<T> listener) {
-        listeners.add(listener);
-    }
+    void addListener(SnapListener<T> listener);
 
-    public void removeListener(SnapListener<T> listener) {
-        listeners.remove(listener);
-    }
-
-    private void notify(AbstractSnapshotEvent<T> event) {
-        for (SnapListener<T> listener : listeners) {
-            listener.onEvent(event);
-        }
-    }
+    void removeListener(SnapListener<T> listener);
 
 }

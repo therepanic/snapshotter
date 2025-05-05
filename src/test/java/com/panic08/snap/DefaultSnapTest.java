@@ -20,17 +20,21 @@
 
 package com.panic08.snap;
 
+import com.esotericsoftware.kryo.Kryo;
 import com.panic08.snap.event.SnapshotRestoredEvent;
 import com.panic08.snap.event.SnapshotSavedEvent;
+import com.panic08.snap.storage.MemorySnapshotStorage;
+import com.panic08.snap.strategy.KryoSnapshotStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SnapTest {
+class DefaultSnapTest {
 
     static class DummyState {
         private String data;
@@ -52,12 +56,14 @@ class SnapTest {
     }
 
     private DummyState target;
-    private Snap<DummyState> snap;
+    private DefaultSnap<DummyState> snap;
 
     @BeforeEach
     void setUp() {
         target = new DummyState("initial");
-        snap = Snap.of(target);
+        Kryo newKryo = new Kryo();
+        newKryo.setRegistrationRequired(false);
+        snap = new DefaultSnap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
     @Test
@@ -175,9 +181,7 @@ class SnapTest {
 
     @Test
     void listenerShouldBeNotifiedOnSaveAndRestoreWithDetails() {
-        DummyState dummy = new DummyState();
-        dummy.setData("initial");
-        Snap<DummyState> snap = Snap.of(dummy);
+        target.setData("initial");
 
         AtomicBoolean saveCalled = new AtomicBoolean(false);
         AtomicBoolean restoreCalled = new AtomicBoolean(false);
@@ -198,9 +202,9 @@ class SnapTest {
         snap.save();
         assertTrue(saveCalled.get());
 
-        dummy.setData("changed");
+        target.setData("changed");
         snap.restore();
         assertTrue(restoreCalled.get());
-        assertEquals("initial", dummy.getData());
+        assertEquals("initial", target.getData());
     }
 }
