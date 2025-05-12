@@ -20,10 +20,7 @@
 
 package com.panic08.snap;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,7 +40,7 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
         try (FileOutputStream fos = new FileOutputStream(newFile)) {
             fos.write(data);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         snapshots.put(name, newFile);
     }
@@ -56,7 +53,7 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
             fis.read(data);
             return decode(data);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
