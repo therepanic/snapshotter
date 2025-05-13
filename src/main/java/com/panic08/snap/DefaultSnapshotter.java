@@ -27,14 +27,14 @@ import com.panic08.snap.event.SnapshotSavedEvent;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultSnap<T> implements Snap<T> {
+public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
     private final T target;
     private final SnapshotStorage<T> storage;
     private final SnapshotStrategy<T> strategy;
-    private final List<SnapListener<T>> listeners;
+    private final List<SnapshotterListener<T>> listeners;
 
-    public DefaultSnap(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy, List<SnapListener<T>> listeners) {
+    public DefaultSnapshotter(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy, List<SnapshotterListener<T>> listeners) {
         this.target = target;
         this.storage = storage;
         this.strategy = strategy;
@@ -129,22 +129,22 @@ public class DefaultSnap<T> implements Snap<T> {
     }
 
     @Override
-    public SnapSchedulerBuilder<T> schedule() {
-        return new SnapSchedulerBuilder<>(this);
+    public SnapshotterSchedulerBuilder<T> schedule() {
+        return new SnapshotterSchedulerBuilder<>(this);
     }
 
     @Override
-    public void addListener(SnapListener<T> listener) {
+    public void addListener(SnapshotterListener<T> listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void removeListener(SnapListener<T> listener) {
+    public void removeListener(SnapshotterListener<T> listener) {
         listeners.remove(listener);
     }
 
     private void notify(AbstractSnapshotEvent<T> event) {
-        for (SnapListener<T> listener : listeners) {
+        for (SnapshotterListener<T> listener : listeners) {
             listener.onEvent(event);
         }
     }

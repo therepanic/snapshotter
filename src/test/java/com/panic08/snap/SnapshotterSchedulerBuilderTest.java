@@ -27,23 +27,23 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SnapSchedulerBuilderTest {
+class SnapshotterSchedulerBuilderTest {
     static class Dummy {
         int x;
     }
 
     @Test
     void throwsIfIntervalNotSet() {
-        Snap<Dummy> snap = Snap.of(new Dummy());
+        Snapshotter<Dummy> snap = Snapshotter.of(new Dummy());
 
         assertThrows(IllegalStateException.class, () -> snap.schedule().build());
     }
 
     @Test
     void buildsSchedulerWithCorrectDefaults() {
-        Snap<Dummy> snap = Snap.of(new Dummy());
+        Snapshotter<Dummy> snap = Snapshotter.of(new Dummy());
 
-        SnapScheduler<Dummy> scheduler = snap.schedule()
+        SnapshotterScheduler<Dummy> scheduler = snap.schedule()
                 .every(Duration.ofMillis(100))
                 .build();
 
@@ -61,9 +61,9 @@ class SnapSchedulerBuilderTest {
         Dummy obj = new Dummy();
         obj.x = 100;
 
-        Snap<Dummy> snap = Snap.of(obj);
+        Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-        SnapScheduler<Dummy> scheduler = snap.schedule()
+        SnapshotterScheduler<Dummy> scheduler = snap.schedule()
                 .every(Duration.ofMillis(100))
                 .saveAs("custom-name")
                 .build();

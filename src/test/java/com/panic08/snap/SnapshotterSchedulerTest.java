@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SnapSchedulerTest {
+class SnapshotterSchedulerTest {
     static class Dummy {
         int value;
     }
@@ -39,9 +39,9 @@ class SnapSchedulerTest {
         Dummy obj = new Dummy();
         obj.value = 100;
 
-        Snap<Dummy> snap = Snap.of(obj);
+        Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-        SnapScheduler<Dummy> scheduler = new SnapScheduler<>(
+        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
                 snap,
                 Duration.ofMillis(100),
                 () -> true,
@@ -63,9 +63,9 @@ class SnapSchedulerTest {
     @Test
     void skipsSnapshotsWhenConditionIsFalse() throws InterruptedException {
         Dummy obj = new Dummy();
-        Snap<Dummy> snap = Snap.of(obj);
+        Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-        SnapScheduler<Dummy> scheduler = new SnapScheduler<>(
+        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
                 snap,
                 Duration.ofMillis(100),
                 () -> false,
@@ -85,10 +85,10 @@ class SnapSchedulerTest {
     @Test
     void savesMultipleSnapshotsWithDynamicNames() throws InterruptedException {
         Dummy obj = new Dummy();
-        Snap<Dummy> snap = Snap.of(obj);
+        Snapshotter<Dummy> snap = Snapshotter.of(obj);
         AtomicInteger counter = new AtomicInteger();
 
-        SnapScheduler<Dummy> scheduler = new SnapScheduler<>(
+        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
                 snap,
                 Duration.ofMillis(100),
                 () -> true,
@@ -110,9 +110,9 @@ class SnapSchedulerTest {
     @Test
     void isRunningReflectsSchedulerState() {
         Dummy obj = new Dummy();
-        Snap<Dummy> snap = Snap.of(obj);
+        Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-        SnapScheduler<Dummy> scheduler = new SnapScheduler<>(
+        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
                 snap,
                 Duration.ofMillis(100),
                 () -> true,

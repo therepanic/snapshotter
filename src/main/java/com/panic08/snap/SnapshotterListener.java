@@ -20,7 +20,7 @@
 
 package com.panic08.snap;
 
-public interface SnapListener<T> {
+public interface SnapshotterListener<T> {
 
     void onEvent(AbstractSnapshotEvent<T> event);
 

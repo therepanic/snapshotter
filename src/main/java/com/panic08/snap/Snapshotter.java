@@ -27,26 +27,26 @@ import com.panic08.snap.strategy.KryoSnapshotStrategy;
 import java.util.ArrayList;
 import java.util.Map;
 
-public interface Snap<T> {
+public interface Snapshotter<T> {
 
-    static <T> DefaultSnap<T> of(T target) {
+    static <T> DefaultSnapshotter<T> of(T target) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new DefaultSnap<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
+        return new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
-    static <T> DefaultSnap<T> of(T target, SnapshotStrategy<T> strategy) {
-        return new DefaultSnap<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
+    static <T> DefaultSnapshotter<T> of(T target, SnapshotStrategy<T> strategy) {
+        return new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
     }
 
-    static <T> DefaultSnap<T> of(T target, SnapshotStorage<T> storage) {
+    static <T> DefaultSnapshotter<T> of(T target, SnapshotStorage<T> storage) {
         Kryo newKryo = new Kryo();
         newKryo.setRegistrationRequired(false);
-        return new DefaultSnap<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
+        return new DefaultSnapshotter<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
     }
 
-    static <T> DefaultSnap<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
-        return new DefaultSnap<>(target, storage, strategy, new ArrayList<>());
+    static <T> DefaultSnapshotter<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
+        return new DefaultSnapshotter<>(target, storage, strategy, new ArrayList<>());
     }
 
     void save();
@@ -77,10 +77,10 @@ public interface Snap<T> {
 
     void runAndSave(Runnable action, String name);
 
-    SnapSchedulerBuilder<T> schedule();
+    SnapshotterSchedulerBuilder<T> schedule();
 
-    void addListener(SnapListener<T> listener);
+    void addListener(SnapshotterListener<T> listener);
 
-    void removeListener(SnapListener<T> listener);
+    void removeListener(SnapshotterListener<T> listener);
 
 }

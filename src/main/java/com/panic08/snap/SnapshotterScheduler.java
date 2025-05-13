@@ -22,22 +22,25 @@ package com.panic08.snap;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class SnapScheduler<T> implements AutoCloseable {
+public class SnapshotterScheduler<T> implements AutoCloseable {
 
     private final ScheduledExecutorService scheduler;
     private final boolean ownsScheduler;
-    private final Snap<T> snap;
+    private final Snapshotter<T> snap;
     private final Duration interval;
     private final BooleanSupplier condition;
     private final Supplier<String> nameGenerator;
     private final Duration initialDelay;
     private final List<Future<?>> tasks;
 
-    public SnapScheduler(ScheduledExecutorService scheduler, Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
         this.scheduler = scheduler;
         this.ownsScheduler = false;
         this.snap = snap;
@@ -48,7 +51,7 @@ public class SnapScheduler<T> implements AutoCloseable {
         this.tasks = tasks;
     }
 
-    public SnapScheduler(Snap<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    public SnapshotterScheduler(Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
         this.scheduler = defaultScheduler();
         this.ownsScheduler = true;
         this.snap = snap;

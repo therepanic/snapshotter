@@ -28,9 +28,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class SnapSchedulerBuilder<T> {
+public class SnapshotterSchedulerBuilder<T> {
 
-    private final Snap<T> snap;
+    private final Snapshotter<T> snapshotter;
     private ScheduledExecutorService scheduler;
     private Duration interval;
     private BooleanSupplier condition;
@@ -38,45 +38,45 @@ public class SnapSchedulerBuilder<T> {
     private List<Future<?>> container;
     private Duration initialDelay;
 
-    public SnapSchedulerBuilder(Snap<T> snap) {
-        this.snap = snap;
+    public SnapshotterSchedulerBuilder(Snapshotter<T> snapshotter) {
+        this.snapshotter = snapshotter;
     }
 
-    public SnapSchedulerBuilder<T> every(Duration interval) {
+    public SnapshotterSchedulerBuilder<T> every(Duration interval) {
         this.interval = interval;
         return this;
     }
 
-    public SnapSchedulerBuilder<T> when(BooleanSupplier condition) {
+    public SnapshotterSchedulerBuilder<T> when(BooleanSupplier condition) {
         this.condition = condition;
         return this;
     }
 
-    public SnapSchedulerBuilder<T> saveAs(Supplier<String> nameGenerator) {
+    public SnapshotterSchedulerBuilder<T> saveAs(Supplier<String> nameGenerator) {
         this.nameGenerator = nameGenerator;
         return this;
     }
 
-    public SnapSchedulerBuilder<T> saveAs(String name) {
+    public SnapshotterSchedulerBuilder<T> saveAs(String name) {
         return saveAs(() -> name);
     }
 
-    public SnapSchedulerBuilder<T> scheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
+    public SnapshotterSchedulerBuilder<T> scheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
         this.scheduler = scheduledExecutorService;
         return this;
     }
 
-    public SnapSchedulerBuilder<T> container(List<Future<?>> container) {
+    public SnapshotterSchedulerBuilder<T> container(List<Future<?>> container) {
         this.container = container;
         return this;
     }
 
-    public SnapSchedulerBuilder<T> initialDelay(Duration initialDelay) {
+    public SnapshotterSchedulerBuilder<T> initialDelay(Duration initialDelay) {
         this.initialDelay = initialDelay;
         return this;
     }
 
-    public SnapScheduler<T> build() {
+    public SnapshotterScheduler<T> build() {
         if (interval == null) {
             throw new IllegalStateException("Interval must be set");
         }
@@ -93,9 +93,9 @@ public class SnapSchedulerBuilder<T> {
             initialDelay = Duration.ofMillis(0);
         }
         if (scheduler == null) {
-            return new SnapScheduler<>(snap, interval, condition, nameGenerator, initialDelay, container);
+            return new SnapshotterScheduler<>(snapshotter, interval, condition, nameGenerator, initialDelay, container);
         } else {
-            return new SnapScheduler<>(scheduler, snap, interval, condition, nameGenerator, initialDelay, container);
+            return new SnapshotterScheduler<>(scheduler, snapshotter, interval, condition, nameGenerator, initialDelay, container);
         }
     }
 
