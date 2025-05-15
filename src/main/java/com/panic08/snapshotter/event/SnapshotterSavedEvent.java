@@ -20,10 +20,10 @@
 
 package com.panic08.snapshotter.event;
 
-import com.panic08.snapshotter.AbstractSnapshotEvent;
+import com.panic08.snapshotter.AbstractSnapshotterEvent;
 import com.panic08.snapshotter.Snapshot;
 
-public class SnapshotSavedEvent<T> extends AbstractSnapshotEvent<T> {
+public class SnapshotSavedEvent<T> extends AbstractSnapshotterEvent<T> {
 
     private final Snapshot<T> snapshot;
 

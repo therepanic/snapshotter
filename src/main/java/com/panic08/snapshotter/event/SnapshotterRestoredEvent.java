@@ -20,11 +20,11 @@
 
 package com.panic08.snapshotter.event;
 
-import com.panic08.snapshotter.AbstractSnapshotEvent;
+import com.panic08.snapshotter.AbstractSnapshotterEvent;
 
-public class SnapshotRemovedEvent<T> extends AbstractSnapshotEvent<T> {
+public class SnapshotRestoredEvent<T> extends AbstractSnapshotterEvent<T> {
 
-    public SnapshotRemovedEvent(String name, T target) {
+    public SnapshotRestoredEvent(String name, T target) {
         super(name, target);
     }
 
