@@ -42,7 +42,7 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        snapshots.put(name, newFile);
+        this.snapshots.put(name, newFile);
     }
 
     @Override
@@ -59,7 +59,7 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
 
     @Override
     public Map.Entry<String, Snapshot<T>> loadLastEntry() {
-        String lastPath = snapshots.keySet().stream().reduce((first, second) -> second).orElse(null);
+        String lastPath = this.snapshots.keySet().stream().reduce((first, second) -> second).orElse(null);
         if (lastPath == null) {
             return null;
         }
@@ -68,21 +68,21 @@ public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<
 
     @Override
     public boolean hasSnapshot(String name) {
-        return snapshots.containsKey(name);
+        return this.snapshots.containsKey(name);
     }
 
     @Override
     public void clear() {
-        for (File file : snapshots.values()) {
+        for (File file : this.snapshots.values()) {
             file.delete();
         }
-        snapshots.clear();
+        this.snapshots.clear();
     }
 
     @Override
     public void remove(String name) {
-        snapshots.get(name).delete();
-        snapshots.remove(name);
+        this.snapshots.get(name).delete();
+        this.snapshots.remove(name);
     }
 
 }

@@ -44,14 +44,14 @@ public class JsonFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
     @Override
     protected byte[] encode(Snapshot<T> snapshot) {
-        String encodedStr = gson.toJson(snapshot.getState());
+        String encodedStr = this.gson.toJson(snapshot.getState());
         return encodedStr.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
     protected Snapshot<T> decode(byte[] data) {
         String str = new String(data, StandardCharsets.UTF_8);
-        T state = gson.fromJson(str, typeOfT);
+        T state = this.gson.fromJson(str, typeOfT);
         return new Snapshot<>(state);
     }
 

@@ -40,9 +40,9 @@ public class Snapshot<T> {
 
     public void restore(T target) {
         try {
-            for (Field field : state.getClass().getDeclaredFields()) {
+            for (Field field : this.state.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
-                field.set(target, field.get(state));
+                field.set(target, field.get(this.state));
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -50,7 +50,7 @@ public class Snapshot<T> {
     }
 
     public T getState() {
-        return state;
+        return this.state;
     }
 
 }

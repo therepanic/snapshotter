@@ -20,22 +20,22 @@
 
 package com.panic08.snapshotter;
 
-public abstract class AbstractSnapshotEvent<T> {
+public abstract class AbstractSnapshotterEvent<T> {
 
     private final String name;
     private final T target;
 
-    public AbstractSnapshotEvent(String name, T target) {
+    public AbstractSnapshotterEvent(String name, T target) {
         this.name = name;
         this.target = target;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public T getTarget() {
-        return target;
+        return this.target;
     }
 
 }

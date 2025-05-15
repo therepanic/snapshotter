@@ -22,9 +22,9 @@ package com.panic08.snapshotter.event;
 
 import com.panic08.snapshotter.AbstractSnapshotterEvent;
 
-public class SnapshotRemovedEvent<T> extends AbstractSnapshotterEvent<T> {
+public class SnapshotterRemovedEvent<T> extends AbstractSnapshotterEvent<T> {
 
-    public SnapshotRemovedEvent(String name, T target) {
+    public SnapshotterRemovedEvent(String name, T target) {
         super(name, target);
     }
 

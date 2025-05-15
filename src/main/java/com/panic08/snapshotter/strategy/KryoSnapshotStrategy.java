@@ -41,11 +41,11 @@ public class KryoSnapshotStrategy<T> implements SnapshotStrategy<T> {
     public T deepClone(T obj) {
         ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
         Output output = new Output(byteOutput);
-        kryo.writeObject(output, obj);
+        this.kryo.writeObject(output, obj);
         output.close();
         ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
         Input input = new Input(byteInput);
-        T cloned = (T) kryo.readObject(input, obj.getClass());
+        T cloned = (T) this.kryo.readObject(input, obj.getClass());
         input.close();
         return cloned;
     }

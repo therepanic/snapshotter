@@ -23,11 +23,11 @@ package com.panic08.snapshotter.event;
 import com.panic08.snapshotter.AbstractSnapshotterEvent;
 import com.panic08.snapshotter.Snapshot;
 
-public class SnapshotSavedEvent<T> extends AbstractSnapshotterEvent<T> {
+public class SnapshotterSavedEvent<T> extends AbstractSnapshotterEvent<T> {
 
     private final Snapshot<T> snapshot;
 
-    public SnapshotSavedEvent(String name, T target, Snapshot<T> snapshot) {
+    public SnapshotterSavedEvent(String name, T target, Snapshot<T> snapshot) {
         super(name, target);
         this.snapshot = snapshot;
     }

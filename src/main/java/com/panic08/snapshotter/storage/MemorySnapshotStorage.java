@@ -32,32 +32,32 @@ public class MemorySnapshotStorage<T> implements SnapshotStorage<T> {
 
     @Override
     public void save(String name, Snapshot<T> snapshot) {
-        snapshots.put(name, snapshot);
+        this.snapshots.put(name, snapshot);
     }
 
     @Override
     public Snapshot<T> load(String name) {
-        return snapshots.get(name);
+        return this.snapshots.get(name);
     }
 
     @Override
     public Map.Entry<String, Snapshot<T>> loadLastEntry() {
-        return snapshots.entrySet().stream().reduce((first, second) -> second).orElse(null);
+        return this.snapshots.entrySet().stream().reduce((first, second) -> second).orElse(null);
     }
 
     @Override
     public boolean hasSnapshot(String name) {
-        return snapshots.containsKey(name);
+        return this.snapshots.containsKey(name);
     }
 
     @Override
     public void clear() {
-        snapshots.clear();
+        this.snapshots.clear();
     }
 
     @Override
     public void remove(String name) {
-        snapshots.remove(name);
+        this.snapshots.remove(name);
     }
 
 }

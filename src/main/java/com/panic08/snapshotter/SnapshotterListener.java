@@ -22,6 +22,6 @@ package com.panic08.snapshotter;
 
 public interface SnapshotterListener<T> {
 
-    void onEvent(AbstractSnapshotEvent<T> event);
+    void onEvent(AbstractSnapshotterEvent<T> event);
 
 }

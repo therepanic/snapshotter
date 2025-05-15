@@ -20,9 +20,9 @@
 
 package com.panic08.snapshotter;
 
-import com.panic08.snapshotter.event.SnapshotRemovedEvent;
-import com.panic08.snapshotter.event.SnapshotRestoredEvent;
-import com.panic08.snapshotter.event.SnapshotSavedEvent;
+import com.panic08.snapshotter.event.SnapshotterRemovedEvent;
+import com.panic08.snapshotter.event.SnapshotterRestoredEvent;
+import com.panic08.snapshotter.event.SnapshotterSavedEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -48,9 +48,9 @@ public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
     @Override
     public void save(String name) {
-        Snapshot<T> snapshot = new Snapshot<>(target, strategy);
-        storage.save(name, snapshot);
-        notify(new SnapshotSavedEvent<>(name, target, snapshot));
+        Snapshot<T> snapshot = new Snapshot<>(this.target, this.strategy);
+        this.storage.save(name, snapshot);
+        notify(new SnapshotterSavedEvent<>(name, this.target, snapshot));
     }
 
     @Override
@@ -60,29 +60,29 @@ public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
     @Override
     public boolean restore(String name) {
-        Snapshot<T> snapshot = storage.load(name);
+        Snapshot<T> snapshot = this.storage.load(name);
         if (snapshot == null) {
             return false;
         }
-        snapshot.restore(target);
-        notify(new SnapshotRestoredEvent<>(name, target));
+        snapshot.restore(this.target);
+        notify(new SnapshotterRestoredEvent<>(name, this.target));
         return true;
     }
 
     @Override
     public boolean restoreLast() {
-        Map.Entry<String, Snapshot<T>> snapshotEntry = storage.loadLastEntry();
+        Map.Entry<String, Snapshot<T>> snapshotEntry = this.storage.loadLastEntry();
         if (snapshotEntry.getValue() == null) {
             return false;
         }
-        snapshotEntry.getValue().restore(target);
-        notify(new SnapshotRestoredEvent<>(snapshotEntry.getKey(), target));
+        snapshotEntry.getValue().restore(this.target);
+        notify(new SnapshotterRestoredEvent<>(snapshotEntry.getKey(), this.target));
         return true;
     }
 
     @Override
     public Map<String, String> diff(String name) {
-        return DiffUtils.diff(target, storage.load(name).getState());
+        return DiffUtils.diff(this.target, this.storage.load(name).getState());
     }
 
     @Override
@@ -92,17 +92,17 @@ public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
     @Override
     public Map<String, String> diff(String name1, String name2) {
-        return DiffUtils.diff(storage.load(name2).getState(), storage.load(name1).getState());
+        return DiffUtils.diff(this.storage.load(name2).getState(), this.storage.load(name1).getState());
     }
 
     @Override
     public boolean hasSnapshot(String name) {
-        return storage.hasSnapshot(name);
+        return this.storage.hasSnapshot(name);
     }
 
     @Override
     public void clear() {
-        storage.clear();
+        this.storage.clear();
     }
 
     @Override
@@ -112,8 +112,8 @@ public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
     @Override
     public void remove(String name) {
-        storage.remove(name);
-        notify(new SnapshotRemovedEvent<>(name, target));
+        this.storage.remove(name);
+        notify(new SnapshotterRemovedEvent<>(name, this.target));
     }
 
     @Override
@@ -135,16 +135,16 @@ public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
     @Override
     public void addListener(SnapshotterListener<T> listener) {
-        listeners.add(listener);
+        this.listeners.add(listener);
     }
 
     @Override
     public void removeListener(SnapshotterListener<T> listener) {
-        listeners.remove(listener);
+        this.listeners.remove(listener);
     }
 
-    private void notify(AbstractSnapshotEvent<T> event) {
-        for (SnapshotterListener<T> listener : listeners) {
+    private void notify(AbstractSnapshotterEvent<T> event) {
+        for (SnapshotterListener<T> listener : this.listeners) {
             listener.onEvent(event);
         }
     }

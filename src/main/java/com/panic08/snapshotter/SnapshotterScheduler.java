@@ -63,25 +63,25 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
     }
 
     public void start() {
-        Future<?> task = scheduler.scheduleAtFixedRate(() -> {
-            if (condition.getAsBoolean()) {
-                synchronized (snap) {
-                    snap.save(nameGenerator.get());
+        Future<?> task = this.scheduler.scheduleAtFixedRate(() -> {
+            if (this.condition.getAsBoolean()) {
+                synchronized (this.snap) {
+                    this.snap.save(this.nameGenerator.get());
                 }
             }
-        }, initialDelay.toMillis(), interval.toMillis(), TimeUnit.MILLISECONDS);
-        tasks.add(task);
+        }, this.initialDelay.toMillis(), this.interval.toMillis(), TimeUnit.MILLISECONDS);
+        this.tasks.add(task);
     }
 
     public void stopAll() {
-        for (Future<?> task : tasks) {
+        for (Future<?> task : this.tasks) {
             task.cancel(false);
         }
-        tasks.clear();
+        this.tasks.clear();
     }
 
     public boolean isRunning() {
-        return !tasks.isEmpty();
+        return !this.tasks.isEmpty();
     }
 
     public static ScheduledExecutorService defaultScheduler() {
@@ -91,11 +91,11 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
     @Override
     public void close() throws Exception {
         stopAll();
-        if (ownsScheduler) {
-            scheduler.shutdown();
+        if (this.ownsScheduler) {
+            this.scheduler.shutdown();
             try {
-                if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
-                    scheduler.shutdownNow();
+                if (!this.scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    this.scheduler.shutdownNow();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

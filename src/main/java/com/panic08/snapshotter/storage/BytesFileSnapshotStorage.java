@@ -43,7 +43,7 @@ public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> 
     @Override
     public byte[] encode(Snapshot<T> snapshot) {
         try (Output output = new Output(1024, -1)) {
-            kryo.writeObject(output, snapshot);
+            this.kryo.writeObject(output, snapshot);
             return output.toBytes();
         }
     }
@@ -52,7 +52,7 @@ public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> 
     @Override
     public Snapshot<T> decode(byte[] data) {
         try (Input input = new Input(data)) {
-            return (Snapshot<T>) kryo.readObject(input, Snapshot.class);
+            return (Snapshot<T>) this.kryo.readObject(input, Snapshot.class);
         }
     }
 

@@ -21,8 +21,8 @@
 package com.panic08.snapshotter;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.panic08.snapshotter.event.SnapshotRestoredEvent;
-import com.panic08.snapshotter.event.SnapshotSavedEvent;
+import com.panic08.snapshotter.event.SnapshotterRestoredEvent;
+import com.panic08.snapshotter.event.SnapshotterSavedEvent;
 import com.panic08.snapshotter.storage.MemorySnapshotStorage;
 import com.panic08.snapshotter.strategy.KryoSnapshotStrategy;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,12 +187,12 @@ class DefaultSnapshotterTest {
         AtomicBoolean restoreCalled = new AtomicBoolean(false);
 
         snapshotter.addListener(event -> {
-            if (event instanceof SnapshotSavedEvent) {
+            if (event instanceof SnapshotterSavedEvent) {
                 saveCalled.set(true);
                 assertEquals("default", event.getName());
                 assertEquals("initial", event.getTarget().getData());
-                assertNotNull(((SnapshotSavedEvent<DummyState>) event).getSnapshot());
-            } else if (event instanceof SnapshotRestoredEvent) {
+                assertNotNull(((SnapshotterSavedEvent<DummyState>) event).getSnapshot());
+            } else if (event instanceof SnapshotterRestoredEvent) {
                 restoreCalled.set(true);
                 assertEquals("default", event.getName());
                 assertEquals("initial", event.getTarget().getData());
