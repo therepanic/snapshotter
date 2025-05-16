@@ -28,7 +28,15 @@ import java.util.Map;
 
 public class MemorySnapshotStorage<T> implements SnapshotStorage<T> {
 
-    private final Map<String, Snapshot<T>> snapshots = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Snapshot<T>> snapshots;
+
+    public MemorySnapshotStorage(LinkedHashMap<String, Snapshot<T>> snapshots) {
+        this.snapshots = snapshots;
+    }
+
+    public MemorySnapshotStorage() {
+        this.snapshots = new LinkedHashMap<>();
+    }
 
     @Override
     public void save(String name, Snapshot<T> snapshot) {
