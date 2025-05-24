@@ -24,22 +24,32 @@ import com.google.gson.Gson;
 import com.panic08.snapshotter.AbstractFileSnapshotStorage;
 import com.panic08.snapshotter.Snapshot;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 
 public class JsonFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
     private final Gson gson;
     private final Type typeOfT;
 
-    public JsonFileSnapshotStorage(Gson gson, Type typeOfT) {
+    public JsonFileSnapshotStorage(Gson gson, Type typeOfT, LinkedHashMap<String, File> snapshots) {
+        super(snapshots);
         this.gson = gson;
         this.typeOfT = typeOfT;
     }
 
+    public JsonFileSnapshotStorage(Gson gson, Type typeOfT) {
+        this(gson, typeOfT, new LinkedHashMap<>());
+    }
+
     public JsonFileSnapshotStorage(Type typeOfT) {
-        this.gson = new Gson();
-        this.typeOfT = typeOfT;
+        this(new Gson(), typeOfT, new LinkedHashMap<>());
+    }
+
+    public JsonFileSnapshotStorage(Type typeOfT, LinkedHashMap<String, File> snapshots) {
+        this(new Gson(), typeOfT, snapshots);
     }
 
     @Override

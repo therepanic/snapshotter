@@ -27,7 +27,11 @@ import java.util.Map;
 
 public abstract class AbstractFileSnapshotStorage<T> implements SnapshotStorage<T> {
 
-    private final Map<String, File> snapshots = new LinkedHashMap<>();
+    private final LinkedHashMap<String, File> snapshots;
+
+    public AbstractFileSnapshotStorage(LinkedHashMap<String, File> snapshots) {
+        this.snapshots = snapshots;
+    }
 
     protected abstract byte[] encode(Snapshot<T> snapshot);
 

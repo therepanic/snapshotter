@@ -26,18 +26,34 @@ import com.esotericsoftware.kryo.io.Output;
 import com.panic08.snapshotter.AbstractFileSnapshotStorage;
 import com.panic08.snapshotter.Snapshot;
 
+import java.io.File;
+import java.util.LinkedHashMap;
+
 public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
     private final Kryo kryo;
 
-    public BytesFileSnapshotStorage(Kryo kryo) {
+    public BytesFileSnapshotStorage(LinkedHashMap<String, File> snapshots, Kryo kryo) {
+        super(snapshots);
         this.kryo = kryo;
     }
 
+    public BytesFileSnapshotStorage(Kryo kryo) {
+        this(new LinkedHashMap<>(), kryo);
+    }
+
     public BytesFileSnapshotStorage() {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        this.kryo = newKryo;
+        this(new LinkedHashMap<>(), createDefaultKryo());
+    }
+
+    public BytesFileSnapshotStorage(LinkedHashMap<String, File> snapshots) {
+        this(snapshots, createDefaultKryo());
+    }
+
+    private static Kryo createDefaultKryo() {
+        Kryo kryo = new Kryo();
+        kryo.setRegistrationRequired(false);
+        return kryo;
     }
 
     @Override
