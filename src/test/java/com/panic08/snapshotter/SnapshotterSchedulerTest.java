@@ -23,7 +23,7 @@ package com.panic08.snapshotter;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,7 +47,7 @@ class SnapshotterSchedulerTest {
                 () -> true,
                 () -> "tick",
                 Duration.ofMillis(0),
-                new ArrayList<>()
+                new ConcurrentLinkedQueue<>()
         );
 
         scheduler.start();
@@ -71,7 +71,7 @@ class SnapshotterSchedulerTest {
                 () -> false,
                 () -> "nope",
                 Duration.ofMillis(0),
-                new ArrayList<>()
+                new ConcurrentLinkedQueue<>()
         );
 
         scheduler.start();
@@ -94,7 +94,7 @@ class SnapshotterSchedulerTest {
                 () -> true,
                 () -> "snap-" + counter.incrementAndGet(),
                 Duration.ofMillis(0),
-                new ArrayList<>()
+                new ConcurrentLinkedQueue<>()
         );
 
         scheduler.start();
@@ -118,7 +118,7 @@ class SnapshotterSchedulerTest {
                 () -> true,
                 () -> "x",
                 Duration.ofMillis(0),
-                new ArrayList<>()
+                new ConcurrentLinkedQueue<>()
         );
 
         scheduler.start();

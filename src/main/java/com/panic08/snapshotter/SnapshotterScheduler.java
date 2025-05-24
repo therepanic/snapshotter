@@ -21,11 +21,7 @@
 package com.panic08.snapshotter;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -38,9 +34,9 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
     private final BooleanSupplier condition;
     private final Supplier<String> nameGenerator;
     private final Duration initialDelay;
-    private final List<Future<?>> tasks;
+    private final ConcurrentLinkedQueue<Future<?>> tasks;
 
-    private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
         this.scheduler = scheduler;
         this.ownsScheduler = ownsScheduler;
         this.snapshotter = snapshotter;
@@ -51,11 +47,11 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
         this.tasks = tasks;
     }
 
-    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
         this(scheduler, false, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
     }
 
-    public SnapshotterScheduler(Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    public SnapshotterScheduler(Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
         this(defaultScheduler(), true, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
     }
 

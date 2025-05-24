@@ -21,8 +21,7 @@
 package com.panic08.snapshotter;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BooleanSupplier;
@@ -35,7 +34,7 @@ public class SnapshotterSchedulerBuilder<T> {
     private Duration interval;
     private BooleanSupplier condition;
     private Supplier<String> nameGenerator;
-    private List<Future<?>> container;
+    private ConcurrentLinkedQueue<Future<?>> container;
     private Duration initialDelay;
 
     public SnapshotterSchedulerBuilder(Snapshotter<T> snapshotter) {
@@ -66,7 +65,7 @@ public class SnapshotterSchedulerBuilder<T> {
         return this;
     }
 
-    public SnapshotterSchedulerBuilder<T> container(List<Future<?>> container) {
+    public SnapshotterSchedulerBuilder<T> container(ConcurrentLinkedQueue<Future<?>> container) {
         this.container = container;
         return this;
     }
@@ -87,7 +86,7 @@ public class SnapshotterSchedulerBuilder<T> {
             this.nameGenerator = () -> "default";
         }
         if (this.container == null) {
-            this.container = new ArrayList<>();
+            this.container = new ConcurrentLinkedQueue<>();
         }
         if (this.initialDelay == null) {
             this.initialDelay = Duration.ofMillis(0);
