@@ -40,9 +40,9 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
     private final Duration initialDelay;
     private final List<Future<?>> tasks;
 
-    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
         this.scheduler = scheduler;
-        this.ownsScheduler = false;
+        this.ownsScheduler = ownsScheduler;
         this.snap = snap;
         this.interval = interval;
         this.condition = condition;
@@ -51,15 +51,12 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
         this.tasks = tasks;
     }
 
+    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+        this(scheduler, false, snap, interval, condition, nameGenerator, initialDelay, tasks);
+    }
+
     public SnapshotterScheduler(Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
-        this.scheduler = defaultScheduler();
-        this.ownsScheduler = true;
-        this.snap = snap;
-        this.interval = interval;
-        this.condition = condition;
-        this.nameGenerator = nameGenerator;
-        this.initialDelay = initialDelay;
-        this.tasks = tasks;
+        this(defaultScheduler(), true, snap, interval, condition, nameGenerator, initialDelay, tasks);
     }
 
     public void start() {
