@@ -35,7 +35,7 @@ public class MemorySnapshotStorage<T> implements SnapshotStorage<T> {
     }
 
     public MemorySnapshotStorage() {
-        this.snapshots = new LinkedHashMap<>();
+        this(new LinkedHashMap<>());
     }
 
     @Override

@@ -33,17 +33,17 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
 
     private final ScheduledExecutorService scheduler;
     private final boolean ownsScheduler;
-    private final Snapshotter<T> snap;
+    private final Snapshotter<T> snapshotter;
     private final Duration interval;
     private final BooleanSupplier condition;
     private final Supplier<String> nameGenerator;
     private final Duration initialDelay;
     private final List<Future<?>> tasks;
 
-    private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+    private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
         this.scheduler = scheduler;
         this.ownsScheduler = ownsScheduler;
-        this.snap = snap;
+        this.snapshotter = snapshotter;
         this.interval = interval;
         this.condition = condition;
         this.nameGenerator = nameGenerator;
@@ -51,19 +51,23 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
         this.tasks = tasks;
     }
 
-    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
-        this(scheduler, false, snap, interval, condition, nameGenerator, initialDelay, tasks);
+    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+        this(scheduler, false, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
     }
 
-    public SnapshotterScheduler(Snapshotter<T> snap, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
-        this(defaultScheduler(), true, snap, interval, condition, nameGenerator, initialDelay, tasks);
+    public SnapshotterScheduler(Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, List<Future<?>> tasks) {
+        this(defaultScheduler(), true, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
+    }
+
+    public static ScheduledExecutorService defaultScheduler() {
+        return Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     public void start() {
         Future<?> task = this.scheduler.scheduleAtFixedRate(() -> {
             if (this.condition.getAsBoolean()) {
-                synchronized (this.snap) {
-                    this.snap.save(this.nameGenerator.get());
+                synchronized (this.snapshotter) {
+                    this.snapshotter.save(this.nameGenerator.get());
                 }
             }
         }, this.initialDelay.toMillis(), this.interval.toMillis(), TimeUnit.MILLISECONDS);
@@ -79,10 +83,6 @@ public class SnapshotterScheduler<T> implements AutoCloseable {
 
     public boolean isRunning() {
         return !this.tasks.isEmpty();
-    }
-
-    public static ScheduledExecutorService defaultScheduler() {
-        return Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @Override
