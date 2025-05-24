@@ -79,22 +79,14 @@ public class SnapshotterSchedulerBuilder<T> {
         if (this.interval == null) {
             throw new IllegalStateException("Interval must be set");
         }
-        if (this.condition == null) {
-            this.condition = () -> true;
-        }
-        if (this.nameGenerator == null) {
-            this.nameGenerator = () -> "default";
-        }
-        if (this.container == null) {
-            this.container = new ConcurrentLinkedQueue<>();
-        }
-        if (this.initialDelay == null) {
-            this.initialDelay = Duration.ofMillis(0);
-        }
+        BooleanSupplier newCondition = this.condition != null ? this.condition : () -> true;
+        Supplier<String> newNameGenerator = this.nameGenerator != null ? this.nameGenerator : () -> "default";
+        ConcurrentLinkedQueue<Future<?>> newContainer = this.container != null ? this.container : new ConcurrentLinkedQueue<>();
+        Duration newInitialDelay = this.initialDelay != null ? this.initialDelay : Duration.ofMillis(0);
         if (scheduler == null) {
-            return new SnapshotterScheduler<>(this.snapshotter, this.interval, this.condition, this.nameGenerator, this.initialDelay, this.container);
+            return new SnapshotterScheduler<>(this.snapshotter, this.interval, newCondition, newNameGenerator, newInitialDelay, newContainer);
         } else {
-            return new SnapshotterScheduler<>(this.scheduler, this.snapshotter, this.interval, this.condition, this.nameGenerator, this.initialDelay, this.container);
+            return new SnapshotterScheduler<>(this.scheduler, this.snapshotter, this.interval, newCondition, newNameGenerator, newInitialDelay, newContainer);
         }
     }
 
