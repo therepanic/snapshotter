@@ -36,111 +36,118 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class AbstractFileSnapshotStorageTest {
-    @TempDir
-    protected Path tempDir;
 
-    static class DummyState {
-        private String data;
+	@TempDir
+	protected Path tempDir;
 
-        public DummyState() {
-        }
+	static class DummyState {
 
-        public DummyState(String data) {
-            this.data = data;
-        }
+		private String data;
 
-        public String getData() {
-            return data;
-        }
+		public DummyState() {
+		}
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            DummyState that = (DummyState) o;
-            return data != null ? data.equals(that.data) : that.data == null;
-        }
+		public DummyState(String data) {
+			this.data = data;
+		}
 
-        @Override
-        public int hashCode() {
-            return data != null ? data.hashCode() : 0;
-        }
-    }
+		public String getData() {
+			return data;
+		}
 
-    protected Kryo kryo;
-    protected AbstractFileSnapshotStorage<DummyState> storage;
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
+			DummyState that = (DummyState) o;
+			return data != null ? data.equals(that.data) : that.data == null;
+		}
 
-    protected abstract AbstractFileSnapshotStorage<DummyState> createStorage();
+		@Override
+		public int hashCode() {
+			return data != null ? data.hashCode() : 0;
+		}
 
-    @BeforeEach
-    void setUp() {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        this.kryo = newKryo;
-        this.storage = createStorage();
-    }
+	}
 
-    @AfterEach
-    void tearDown() {
-        this.storage.clear();
-    }
+	protected Kryo kryo;
 
-    @Test
-    void testSaveAndLoad() {
-        DummyState state = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(state, new KryoSnapshotStrategy<>(kryo));
-        String filePath = tempDir.resolve("snapshot1").toString();
-        storage.save(filePath, snapshot);
+	protected AbstractFileSnapshotStorage<DummyState> storage;
 
-        Snapshot<DummyState> loaded = storage.load(filePath);
-        assertNotNull(loaded);
-        assertEquals("data", loaded.getState().getData());
-    }
+	protected abstract AbstractFileSnapshotStorage<DummyState> createStorage();
 
-    @Test
-    void testLoadLastEntry() {
-        String firstPath = tempDir.resolve("first").toString();
-        String secondPath = tempDir.resolve("second").toString();
+	@BeforeEach
+	void setUp() {
+		Kryo newKryo = new Kryo();
+		newKryo.setRegistrationRequired(false);
+		this.kryo = newKryo;
+		this.storage = createStorage();
+	}
 
-        storage.save(firstPath, new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
-        storage.save(secondPath, new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
+	@AfterEach
+	void tearDown() {
+		this.storage.clear();
+	}
 
-        Map.Entry<String, Snapshot<DummyState>> last = storage.loadLastEntry();
-        assertNotNull(last);
-        assertEquals("two", last.getValue().getState().getData());
-    }
+	@Test
+	void testSaveAndLoad() {
+		DummyState state = new DummyState("data");
+		Snapshot<DummyState> snapshot = new Snapshot<>(state, new KryoSnapshotStrategy<>(kryo));
+		String filePath = tempDir.resolve("snapshot1").toString();
+		storage.save(filePath, snapshot);
 
-    @Test
-    void testHasSnapshot() {
-        String filePath = tempDir.resolve("exists").toString();
-        storage.save(filePath, new Snapshot<>(new DummyState("value"), new KryoSnapshotStrategy<>(kryo)));
+		Snapshot<DummyState> loaded = storage.load(filePath);
+		assertNotNull(loaded);
+		assertEquals("data", loaded.getState().getData());
+	}
 
-        assertTrue(storage.hasSnapshot(filePath));
-        assertFalse(storage.hasSnapshot(tempDir.resolve("missing").toString()));
-    }
+	@Test
+	void testLoadLastEntry() {
+		String firstPath = tempDir.resolve("first").toString();
+		String secondPath = tempDir.resolve("second").toString();
 
-    @Test
-    void testRemove() {
-        String filePath = tempDir.resolve("temp").toString();
-        storage.save(filePath, new Snapshot<>(new DummyState("to delete"), new KryoSnapshotStrategy<>(kryo)));
+		storage.save(firstPath, new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
+		storage.save(secondPath, new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
 
-        storage.remove(filePath);
-        assertFalse(storage.hasSnapshot(filePath));
-        assertFalse(new File(filePath).exists());
-    }
+		Map.Entry<String, Snapshot<DummyState>> last = storage.loadLastEntry();
+		assertNotNull(last);
+		assertEquals("two", last.getValue().getState().getData());
+	}
 
-    @Test
-    void testClear() {
-        String path1 = tempDir.resolve("one").toString();
-        String path2 = tempDir.resolve("two").toString();
+	@Test
+	void testHasSnapshot() {
+		String filePath = tempDir.resolve("exists").toString();
+		storage.save(filePath, new Snapshot<>(new DummyState("value"), new KryoSnapshotStrategy<>(kryo)));
 
-        storage.save(path1, new Snapshot<>(new DummyState("1"), new KryoSnapshotStrategy<>(kryo)));
-        storage.save(path2, new Snapshot<>(new DummyState("2"), new KryoSnapshotStrategy<>(kryo)));
+		assertTrue(storage.hasSnapshot(filePath));
+		assertFalse(storage.hasSnapshot(tempDir.resolve("missing").toString()));
+	}
 
-        storage.clear();
+	@Test
+	void testRemove() {
+		String filePath = tempDir.resolve("temp").toString();
+		storage.save(filePath, new Snapshot<>(new DummyState("to delete"), new KryoSnapshotStrategy<>(kryo)));
 
-        assertNull(storage.loadLastEntry());
-        assertFalse(new File(path1).exists());
-        assertFalse(new File(path2).exists());
-    }
+		storage.remove(filePath);
+		assertFalse(storage.hasSnapshot(filePath));
+		assertFalse(new File(filePath).exists());
+	}
+
+	@Test
+	void testClear() {
+		String path1 = tempDir.resolve("one").toString();
+		String path2 = tempDir.resolve("two").toString();
+
+		storage.save(path1, new Snapshot<>(new DummyState("1"), new KryoSnapshotStrategy<>(kryo)));
+		storage.save(path2, new Snapshot<>(new DummyState("2"), new KryoSnapshotStrategy<>(kryo)));
+
+		storage.clear();
+
+		assertNull(storage.loadLastEntry());
+		assertFalse(new File(path1).exists());
+		assertFalse(new File(path2).exists());
+	}
+
 }

@@ -24,9 +24,9 @@ import com.therepanic.snapshotter.AbstractFileSnapshotStorage;
 
 class JsonFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
 
-    @Override
-    protected AbstractFileSnapshotStorage<DummyState> createStorage() {
-        return new JsonFileSnapshotStorage<>(DummyState.class);
-    }
+	@Override
+	protected AbstractFileSnapshotStorage<DummyState> createStorage() {
+		return new JsonFileSnapshotStorage<>(DummyState.class);
+	}
 
 }

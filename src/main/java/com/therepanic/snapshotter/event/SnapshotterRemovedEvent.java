@@ -24,8 +24,8 @@ import com.therepanic.snapshotter.AbstractSnapshotterEvent;
 
 public class SnapshotterRemovedEvent<T> extends AbstractSnapshotterEvent<T> {
 
-    public SnapshotterRemovedEvent(String name, T target) {
-        super(name, target);
-    }
+	public SnapshotterRemovedEvent(String name, T target) {
+		super(name, target);
+	}
 
 }

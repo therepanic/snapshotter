@@ -29,48 +29,51 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SnapshotTest {
 
-    static class DummyState {
-        private String data;
+	static class DummyState {
 
-        public DummyState() {
-        }
+		private String data;
 
-        public DummyState(String data) {
-            this.data = data;
-        }
+		public DummyState() {
+		}
 
-        public String getData() {
-            return data;
-        }
+		public DummyState(String data) {
+			this.data = data;
+		}
 
-        public void setData(String data) {
-            this.data = data;
-        }
-    }
+		public String getData() {
+			return data;
+		}
 
-    private Kryo kryo;
+		public void setData(String data) {
+			this.data = data;
+		}
 
-    @BeforeEach
-    void setUp() {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        this.kryo = newKryo;
-    }
+	}
 
-    @Test
-    void testSnapshotStoresDeepCopy() {
-        DummyState original = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original, new KryoSnapshotStrategy<>(kryo));
-        original.setData("modified");
-        assertEquals("data", snapshot.getState().getData());
-    }
+	private Kryo kryo;
 
-    @Test
-    void testRestore() {
-        DummyState original = new DummyState("initial");
-        DummyState target = new DummyState("empty");
-        Snapshot<DummyState> snapshot = new Snapshot<>(original, new KryoSnapshotStrategy<>(kryo));
-        snapshot.restore(target);
-        assertEquals("initial", target.getData());
-    }
+	@BeforeEach
+	void setUp() {
+		Kryo newKryo = new Kryo();
+		newKryo.setRegistrationRequired(false);
+		this.kryo = newKryo;
+	}
+
+	@Test
+	void testSnapshotStoresDeepCopy() {
+		DummyState original = new DummyState("data");
+		Snapshot<DummyState> snapshot = new Snapshot<>(original, new KryoSnapshotStrategy<>(kryo));
+		original.setData("modified");
+		assertEquals("data", snapshot.getState().getData());
+	}
+
+	@Test
+	void testRestore() {
+		DummyState original = new DummyState("initial");
+		DummyState target = new DummyState("empty");
+		Snapshot<DummyState> snapshot = new Snapshot<>(original, new KryoSnapshotStrategy<>(kryo));
+		snapshot.restore(target);
+		assertEquals("initial", target.getData());
+	}
+
 }

@@ -22,6 +22,6 @@ package com.therepanic.snapshotter;
 
 public interface SnapshotterListener<T> {
 
-    void onEvent(AbstractSnapshotterEvent<T> event);
+	void onEvent(AbstractSnapshotterEvent<T> event);
 
 }

@@ -29,58 +29,59 @@ import java.util.Map;
 
 public interface Snapshotter<T> {
 
-    static <T> DefaultSnapshotter<T> of(T target) {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        return new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
-    }
+	static <T> DefaultSnapshotter<T> of(T target) {
+		Kryo newKryo = new Kryo();
+		newKryo.setRegistrationRequired(false);
+		return new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo),
+				new ArrayList<>());
+	}
 
-    static <T> DefaultSnapshotter<T> of(T target, SnapshotStrategy<T> strategy) {
-        return new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
-    }
+	static <T> DefaultSnapshotter<T> of(T target, SnapshotStrategy<T> strategy) {
+		return new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), strategy, new ArrayList<>());
+	}
 
-    static <T> DefaultSnapshotter<T> of(T target, SnapshotStorage<T> storage) {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        return new DefaultSnapshotter<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
-    }
+	static <T> DefaultSnapshotter<T> of(T target, SnapshotStorage<T> storage) {
+		Kryo newKryo = new Kryo();
+		newKryo.setRegistrationRequired(false);
+		return new DefaultSnapshotter<>(target, storage, new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
+	}
 
-    static <T> DefaultSnapshotter<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
-        return new DefaultSnapshotter<>(target, storage, strategy, new ArrayList<>());
-    }
+	static <T> DefaultSnapshotter<T> of(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy) {
+		return new DefaultSnapshotter<>(target, storage, strategy, new ArrayList<>());
+	}
 
-    void save();
+	void save();
 
-    void save(String name);
+	void save(String name);
 
-    boolean restore();
+	boolean restore();
 
-    boolean restore(String name);
+	boolean restore(String name);
 
-    boolean restoreLast();
+	boolean restoreLast();
 
-    Map<String, String> diff();
+	Map<String, String> diff();
 
-    Map<String, String> diff(String name);
+	Map<String, String> diff(String name);
 
-    Map<String, String> diff(String name1, String name2);
+	Map<String, String> diff(String name1, String name2);
 
-    boolean hasSnapshot(String name);
+	boolean hasSnapshot(String name);
 
-    void clear();
+	void clear();
 
-    void remove();
+	void remove();
 
-    void remove(String name);
+	void remove(String name);
 
-    void runAndSave(Runnable action);
+	void runAndSave(Runnable action);
 
-    void runAndSave(Runnable action, String name);
+	void runAndSave(Runnable action, String name);
 
-    SnapshotterSchedulerBuilder<T> schedule();
+	SnapshotterSchedulerBuilder<T> schedule();
 
-    void addListener(SnapshotterListener<T> listener);
+	void addListener(SnapshotterListener<T> listener);
 
-    void removeListener(SnapshotterListener<T> listener);
+	void removeListener(SnapshotterListener<T> listener);
 
 }

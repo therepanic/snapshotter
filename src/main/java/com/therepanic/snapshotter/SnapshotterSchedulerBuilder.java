@@ -29,65 +29,75 @@ import java.util.function.Supplier;
 
 public class SnapshotterSchedulerBuilder<T> {
 
-    private final Snapshotter<T> snapshotter;
-    private ScheduledExecutorService scheduler;
-    private Duration interval;
-    private BooleanSupplier condition;
-    private Supplier<String> nameGenerator;
-    private ConcurrentLinkedQueue<Future<?>> container;
-    private Duration initialDelay;
+	private final Snapshotter<T> snapshotter;
 
-    public SnapshotterSchedulerBuilder(Snapshotter<T> snapshotter) {
-        this.snapshotter = snapshotter;
-    }
+	private ScheduledExecutorService scheduler;
 
-    public SnapshotterSchedulerBuilder<T> every(Duration interval) {
-        this.interval = interval;
-        return this;
-    }
+	private Duration interval;
 
-    public SnapshotterSchedulerBuilder<T> when(BooleanSupplier condition) {
-        this.condition = condition;
-        return this;
-    }
+	private BooleanSupplier condition;
 
-    public SnapshotterSchedulerBuilder<T> saveAs(Supplier<String> nameGenerator) {
-        this.nameGenerator = nameGenerator;
-        return this;
-    }
+	private Supplier<String> nameGenerator;
 
-    public SnapshotterSchedulerBuilder<T> saveAs(String name) {
-        return saveAs(() -> name);
-    }
+	private ConcurrentLinkedQueue<Future<?>> container;
 
-    public SnapshotterSchedulerBuilder<T> scheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduler = scheduledExecutorService;
-        return this;
-    }
+	private Duration initialDelay;
 
-    public SnapshotterSchedulerBuilder<T> container(ConcurrentLinkedQueue<Future<?>> container) {
-        this.container = container;
-        return this;
-    }
+	public SnapshotterSchedulerBuilder(Snapshotter<T> snapshotter) {
+		this.snapshotter = snapshotter;
+	}
 
-    public SnapshotterSchedulerBuilder<T> initialDelay(Duration initialDelay) {
-        this.initialDelay = initialDelay;
-        return this;
-    }
+	public SnapshotterSchedulerBuilder<T> every(Duration interval) {
+		this.interval = interval;
+		return this;
+	}
 
-    public SnapshotterScheduler<T> build() {
-        if (this.interval == null) {
-            throw new IllegalStateException("Interval must be set");
-        }
-        BooleanSupplier newCondition = this.condition != null ? this.condition : () -> true;
-        Supplier<String> newNameGenerator = this.nameGenerator != null ? this.nameGenerator : () -> "default";
-        ConcurrentLinkedQueue<Future<?>> newContainer = this.container != null ? this.container : new ConcurrentLinkedQueue<>();
-        Duration newInitialDelay = this.initialDelay != null ? this.initialDelay : Duration.ofMillis(0);
-        if (scheduler == null) {
-            return new SnapshotterScheduler<>(this.snapshotter, this.interval, newCondition, newNameGenerator, newInitialDelay, newContainer);
-        } else {
-            return new SnapshotterScheduler<>(this.scheduler, this.snapshotter, this.interval, newCondition, newNameGenerator, newInitialDelay, newContainer);
-        }
-    }
+	public SnapshotterSchedulerBuilder<T> when(BooleanSupplier condition) {
+		this.condition = condition;
+		return this;
+	}
+
+	public SnapshotterSchedulerBuilder<T> saveAs(Supplier<String> nameGenerator) {
+		this.nameGenerator = nameGenerator;
+		return this;
+	}
+
+	public SnapshotterSchedulerBuilder<T> saveAs(String name) {
+		return saveAs(() -> name);
+	}
+
+	public SnapshotterSchedulerBuilder<T> scheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
+		this.scheduler = scheduledExecutorService;
+		return this;
+	}
+
+	public SnapshotterSchedulerBuilder<T> container(ConcurrentLinkedQueue<Future<?>> container) {
+		this.container = container;
+		return this;
+	}
+
+	public SnapshotterSchedulerBuilder<T> initialDelay(Duration initialDelay) {
+		this.initialDelay = initialDelay;
+		return this;
+	}
+
+	public SnapshotterScheduler<T> build() {
+		if (this.interval == null) {
+			throw new IllegalStateException("Interval must be set");
+		}
+		BooleanSupplier newCondition = this.condition != null ? this.condition : () -> true;
+		Supplier<String> newNameGenerator = this.nameGenerator != null ? this.nameGenerator : () -> "default";
+		ConcurrentLinkedQueue<Future<?>> newContainer = this.container != null ? this.container
+				: new ConcurrentLinkedQueue<>();
+		Duration newInitialDelay = this.initialDelay != null ? this.initialDelay : Duration.ofMillis(0);
+		if (scheduler == null) {
+			return new SnapshotterScheduler<>(this.snapshotter, this.interval, newCondition, newNameGenerator,
+					newInitialDelay, newContainer);
+		}
+		else {
+			return new SnapshotterScheduler<>(this.scheduler, this.snapshotter, this.interval, newCondition,
+					newNameGenerator, newInitialDelay, newContainer);
+		}
+	}
 
 }

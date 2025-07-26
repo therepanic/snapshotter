@@ -25,15 +25,15 @@ import com.therepanic.snapshotter.Snapshot;
 
 public class SnapshotterSavedEvent<T> extends AbstractSnapshotterEvent<T> {
 
-    private final Snapshot<T> snapshot;
+	private final Snapshot<T> snapshot;
 
-    public SnapshotterSavedEvent(String name, T target, Snapshot<T> snapshot) {
-        super(name, target);
-        this.snapshot = snapshot;
-    }
+	public SnapshotterSavedEvent(String name, T target, Snapshot<T> snapshot) {
+		super(name, target);
+		this.snapshot = snapshot;
+	}
 
-    public Snapshot<T> getSnapshot() {
-        return snapshot;
-    }
+	public Snapshot<T> getSnapshot() {
+		return snapshot;
+	}
 
 }

@@ -1,8 +1,9 @@
 plugins {
     id 'java-library'
+    id "io.spring.javaformat" version "0.0.47"
 }
 
-group = 'com.panic08'
+group = 'com.therepanic'
 version = '1.0.0-SNAPSHOT'
 
 repositories {

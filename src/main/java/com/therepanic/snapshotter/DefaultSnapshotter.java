@@ -29,124 +29,128 @@ import java.util.Map;
 
 public class DefaultSnapshotter<T> implements Snapshotter<T> {
 
-    private final T target;
-    private final SnapshotStorage<T> storage;
-    private final SnapshotStrategy<T> strategy;
-    private final List<SnapshotterListener<T>> listeners;
+	private final T target;
 
-    public DefaultSnapshotter(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy, List<SnapshotterListener<T>> listeners) {
-        this.target = target;
-        this.storage = storage;
-        this.strategy = strategy;
-        this.listeners = listeners;
-    }
+	private final SnapshotStorage<T> storage;
 
-    @Override
-    public void save() {
-        save("default");
-    }
+	private final SnapshotStrategy<T> strategy;
 
-    @Override
-    public void save(String name) {
-        Snapshot<T> snapshot = new Snapshot<>(this.target, this.strategy);
-        this.storage.save(name, snapshot);
-        notify(new SnapshotterSavedEvent<>(name, this.target, snapshot));
-    }
+	private final List<SnapshotterListener<T>> listeners;
 
-    @Override
-    public boolean restore() {
-        return restore("default");
-    }
+	public DefaultSnapshotter(T target, SnapshotStorage<T> storage, SnapshotStrategy<T> strategy,
+			List<SnapshotterListener<T>> listeners) {
+		this.target = target;
+		this.storage = storage;
+		this.strategy = strategy;
+		this.listeners = listeners;
+	}
 
-    @Override
-    public boolean restore(String name) {
-        Snapshot<T> snapshot = this.storage.load(name);
-        if (snapshot == null) {
-            return false;
-        }
-        snapshot.restore(this.target);
-        notify(new SnapshotterRestoredEvent<>(name, this.target));
-        return true;
-    }
+	@Override
+	public void save() {
+		save("default");
+	}
 
-    @Override
-    public boolean restoreLast() {
-        Map.Entry<String, Snapshot<T>> snapshotEntry = this.storage.loadLastEntry();
-        if (snapshotEntry.getValue() == null) {
-            return false;
-        }
-        snapshotEntry.getValue().restore(this.target);
-        notify(new SnapshotterRestoredEvent<>(snapshotEntry.getKey(), this.target));
-        return true;
-    }
+	@Override
+	public void save(String name) {
+		Snapshot<T> snapshot = new Snapshot<>(this.target, this.strategy);
+		this.storage.save(name, snapshot);
+		notify(new SnapshotterSavedEvent<>(name, this.target, snapshot));
+	}
 
-    @Override
-    public Map<String, String> diff(String name) {
-        return DiffUtils.diff(this.target, this.storage.load(name).getState());
-    }
+	@Override
+	public boolean restore() {
+		return restore("default");
+	}
 
-    @Override
-    public Map<String, String> diff() {
-        return diff("default");
-    }
+	@Override
+	public boolean restore(String name) {
+		Snapshot<T> snapshot = this.storage.load(name);
+		if (snapshot == null) {
+			return false;
+		}
+		snapshot.restore(this.target);
+		notify(new SnapshotterRestoredEvent<>(name, this.target));
+		return true;
+	}
 
-    @Override
-    public Map<String, String> diff(String name1, String name2) {
-        return DiffUtils.diff(this.storage.load(name2).getState(), this.storage.load(name1).getState());
-    }
+	@Override
+	public boolean restoreLast() {
+		Map.Entry<String, Snapshot<T>> snapshotEntry = this.storage.loadLastEntry();
+		if (snapshotEntry.getValue() == null) {
+			return false;
+		}
+		snapshotEntry.getValue().restore(this.target);
+		notify(new SnapshotterRestoredEvent<>(snapshotEntry.getKey(), this.target));
+		return true;
+	}
 
-    @Override
-    public boolean hasSnapshot(String name) {
-        return this.storage.hasSnapshot(name);
-    }
+	@Override
+	public Map<String, String> diff(String name) {
+		return DiffUtils.diff(this.target, this.storage.load(name).getState());
+	}
 
-    @Override
-    public void clear() {
-        this.storage.clear();
-    }
+	@Override
+	public Map<String, String> diff() {
+		return diff("default");
+	}
 
-    @Override
-    public void remove() {
-        remove("default");
-    }
+	@Override
+	public Map<String, String> diff(String name1, String name2) {
+		return DiffUtils.diff(this.storage.load(name2).getState(), this.storage.load(name1).getState());
+	}
 
-    @Override
-    public void remove(String name) {
-        this.storage.remove(name);
-        notify(new SnapshotterRemovedEvent<>(name, this.target));
-    }
+	@Override
+	public boolean hasSnapshot(String name) {
+		return this.storage.hasSnapshot(name);
+	}
 
-    @Override
-    public void runAndSave(Runnable action) {
-        action.run();
-        save();
-    }
+	@Override
+	public void clear() {
+		this.storage.clear();
+	}
 
-    @Override
-    public void runAndSave(Runnable action, String name) {
-        action.run();
-        save(name);
-    }
+	@Override
+	public void remove() {
+		remove("default");
+	}
 
-    @Override
-    public SnapshotterSchedulerBuilder<T> schedule() {
-        return new SnapshotterSchedulerBuilder<>(this);
-    }
+	@Override
+	public void remove(String name) {
+		this.storage.remove(name);
+		notify(new SnapshotterRemovedEvent<>(name, this.target));
+	}
 
-    @Override
-    public void addListener(SnapshotterListener<T> listener) {
-        this.listeners.add(listener);
-    }
+	@Override
+	public void runAndSave(Runnable action) {
+		action.run();
+		save();
+	}
 
-    @Override
-    public void removeListener(SnapshotterListener<T> listener) {
-        this.listeners.remove(listener);
-    }
+	@Override
+	public void runAndSave(Runnable action, String name) {
+		action.run();
+		save(name);
+	}
 
-    private void notify(AbstractSnapshotterEvent<T> event) {
-        for (SnapshotterListener<T> listener : this.listeners) {
-            listener.onEvent(event);
-        }
-    }
+	@Override
+	public SnapshotterSchedulerBuilder<T> schedule() {
+		return new SnapshotterSchedulerBuilder<>(this);
+	}
+
+	@Override
+	public void addListener(SnapshotterListener<T> listener) {
+		this.listeners.add(listener);
+	}
+
+	@Override
+	public void removeListener(SnapshotterListener<T> listener) {
+		this.listeners.remove(listener);
+	}
+
+	private void notify(AbstractSnapshotterEvent<T> event) {
+		for (SnapshotterListener<T> listener : this.listeners) {
+			listener.onEvent(event);
+		}
+	}
 
 }

@@ -31,68 +31,71 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MemorySnapshotStorageTest {
 
-    static class DummyState {
-        private String data;
+	static class DummyState {
 
-        public DummyState() {
-        }
+		private String data;
 
-        public DummyState(String data) {
-            this.data = data;
-        }
+		public DummyState() {
+		}
 
-        public String getData() {
-            return data;
-        }
-    }
+		public DummyState(String data) {
+			this.data = data;
+		}
 
-    private MemorySnapshotStorage<DummyState> storage;
-    private Kryo kryo;
+		public String getData() {
+			return data;
+		}
 
-    @BeforeEach
-    void setUp() {
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        this.kryo = newKryo;
-        this.storage = new MemorySnapshotStorage<>();
-    }
+	}
 
-    @Test
-    void testSaveAndLoad() {
-        DummyState state = new DummyState("data");
-        Snapshot<DummyState> snapshot = new Snapshot<>(state, new KryoSnapshotStrategy<>(kryo));
-        storage.save("snapshot1", snapshot);
-        assertNotNull(storage.load("snapshot1"));
-        Assertions.assertEquals("data", storage.load("snapshot1").getState().getData());
-    }
+	private MemorySnapshotStorage<DummyState> storage;
 
-    @Test
-    void testLoadLastEntry() {
-        storage.save("first", new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
-        storage.save("second", new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
-        Assertions.assertEquals("two", storage.loadLastEntry().getValue().getState().getData());
-    }
+	private Kryo kryo;
 
-    @Test
-    void testHasSnapshot() {
-        storage.save("exists", new Snapshot<>(new DummyState("value"), new KryoSnapshotStrategy<>(kryo)));
-        assertTrue(storage.hasSnapshot("exists"));
-        assertFalse(storage.hasSnapshot("missing"));
-    }
+	@BeforeEach
+	void setUp() {
+		Kryo newKryo = new Kryo();
+		newKryo.setRegistrationRequired(false);
+		this.kryo = newKryo;
+		this.storage = new MemorySnapshotStorage<>();
+	}
 
-    @Test
-    void testRemove() {
-        storage.save("temp", new Snapshot<>(new DummyState("to delete"), new KryoSnapshotStrategy<>(kryo)));
-        storage.remove("temp");
-        assertFalse(storage.hasSnapshot("temp"));
-    }
+	@Test
+	void testSaveAndLoad() {
+		DummyState state = new DummyState("data");
+		Snapshot<DummyState> snapshot = new Snapshot<>(state, new KryoSnapshotStrategy<>(kryo));
+		storage.save("snapshot1", snapshot);
+		assertNotNull(storage.load("snapshot1"));
+		Assertions.assertEquals("data", storage.load("snapshot1").getState().getData());
+	}
 
-    @Test
-    void testClear() {
-        storage.save("one", new Snapshot<>(new DummyState("1"), new KryoSnapshotStrategy<>(kryo)));
-        storage.save("two", new Snapshot<>(new DummyState("2"), new KryoSnapshotStrategy<>(kryo)));
-        storage.clear();
-        assertNull(storage.loadLastEntry());
-    }
+	@Test
+	void testLoadLastEntry() {
+		storage.save("first", new Snapshot<>(new DummyState("one"), new KryoSnapshotStrategy<>(kryo)));
+		storage.save("second", new Snapshot<>(new DummyState("two"), new KryoSnapshotStrategy<>(kryo)));
+		Assertions.assertEquals("two", storage.loadLastEntry().getValue().getState().getData());
+	}
+
+	@Test
+	void testHasSnapshot() {
+		storage.save("exists", new Snapshot<>(new DummyState("value"), new KryoSnapshotStrategy<>(kryo)));
+		assertTrue(storage.hasSnapshot("exists"));
+		assertFalse(storage.hasSnapshot("missing"));
+	}
+
+	@Test
+	void testRemove() {
+		storage.save("temp", new Snapshot<>(new DummyState("to delete"), new KryoSnapshotStrategy<>(kryo)));
+		storage.remove("temp");
+		assertFalse(storage.hasSnapshot("temp"));
+	}
+
+	@Test
+	void testClear() {
+		storage.save("one", new Snapshot<>(new DummyState("1"), new KryoSnapshotStrategy<>(kryo)));
+		storage.save("two", new Snapshot<>(new DummyState("2"), new KryoSnapshotStrategy<>(kryo)));
+		storage.clear();
+		assertNull(storage.loadLastEntry());
+	}
+
 }
-

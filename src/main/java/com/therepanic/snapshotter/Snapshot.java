@@ -24,33 +24,34 @@ import java.lang.reflect.Field;
 
 public class Snapshot<T> {
 
-    private final T state;
+	private final T state;
 
-    public Snapshot(T state, SnapshotStrategy<T> strategy) {
-        this.state = strategy.deepClone(state);
-    }
+	public Snapshot(T state, SnapshotStrategy<T> strategy) {
+		this.state = strategy.deepClone(state);
+	}
 
-    public Snapshot(T state) {
-        this.state = state;
-    }
+	public Snapshot(T state) {
+		this.state = state;
+	}
 
-    public Snapshot() {
-        this.state = null;
-    }
+	public Snapshot() {
+		this.state = null;
+	}
 
-    public void restore(T target) {
-        try {
-            for (Field field : this.state.getClass().getDeclaredFields()) {
-                field.setAccessible(true);
-                field.set(target, field.get(this.state));
-            }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public void restore(T target) {
+		try {
+			for (Field field : this.state.getClass().getDeclaredFields()) {
+				field.setAccessible(true);
+				field.set(target, field.get(this.state));
+			}
+		}
+		catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public T getState() {
-        return this.state;
-    }
+	public T getState() {
+		return this.state;
+	}
 
 }

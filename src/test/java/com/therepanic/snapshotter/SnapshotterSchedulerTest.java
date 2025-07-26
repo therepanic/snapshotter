@@ -30,101 +30,81 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SnapshotterSchedulerTest {
-    static class Dummy {
-        int value;
-    }
 
-    @Test
-    void savesSnapshotsWhenConditionIsTrue() throws InterruptedException {
-        Dummy obj = new Dummy();
-        obj.value = 100;
+	static class Dummy {
 
-        Snapshotter<Dummy> snap = Snapshotter.of(obj);
+		int value;
 
-        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
-                snap,
-                Duration.ofMillis(100),
-                () -> true,
-                () -> "tick",
-                Duration.ofMillis(0),
-                new ConcurrentLinkedQueue<>()
-        );
+	}
 
-        scheduler.start();
-        TimeUnit.MILLISECONDS.sleep(250);
-        obj.value = 50;
-        scheduler.stopAll();
+	@Test
+	void savesSnapshotsWhenConditionIsTrue() throws InterruptedException {
+		Dummy obj = new Dummy();
+		obj.value = 100;
 
-        snap.restore("tick");
+		Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-        assertEquals(100, obj.value);
-    }
+		SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(snap, Duration.ofMillis(100), () -> true,
+				() -> "tick", Duration.ofMillis(0), new ConcurrentLinkedQueue<>());
 
-    @Test
-    void skipsSnapshotsWhenConditionIsFalse() throws InterruptedException {
-        Dummy obj = new Dummy();
-        Snapshotter<Dummy> snap = Snapshotter.of(obj);
+		scheduler.start();
+		TimeUnit.MILLISECONDS.sleep(250);
+		obj.value = 50;
+		scheduler.stopAll();
 
-        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
-                snap,
-                Duration.ofMillis(100),
-                () -> false,
-                () -> "nope",
-                Duration.ofMillis(0),
-                new ConcurrentLinkedQueue<>()
-        );
+		snap.restore("tick");
 
-        scheduler.start();
-        obj.value = 999;
-        TimeUnit.MILLISECONDS.sleep(200);
-        scheduler.stopAll();
+		assertEquals(100, obj.value);
+	}
 
-        assertFalse(snap.hasSnapshot("nope"));
-    }
+	@Test
+	void skipsSnapshotsWhenConditionIsFalse() throws InterruptedException {
+		Dummy obj = new Dummy();
+		Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-    @Test
-    void savesMultipleSnapshotsWithDynamicNames() throws InterruptedException {
-        Dummy obj = new Dummy();
-        Snapshotter<Dummy> snap = Snapshotter.of(obj);
-        AtomicInteger counter = new AtomicInteger();
+		SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(snap, Duration.ofMillis(100), () -> false,
+				() -> "nope", Duration.ofMillis(0), new ConcurrentLinkedQueue<>());
 
-        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
-                snap,
-                Duration.ofMillis(100),
-                () -> true,
-                () -> "snap-" + counter.incrementAndGet(),
-                Duration.ofMillis(0),
-                new ConcurrentLinkedQueue<>()
-        );
+		scheduler.start();
+		obj.value = 999;
+		TimeUnit.MILLISECONDS.sleep(200);
+		scheduler.stopAll();
 
-        scheduler.start();
-        obj.value = 1;
-        TimeUnit.MILLISECONDS.sleep(400);
-        scheduler.stopAll();
+		assertFalse(snap.hasSnapshot("nope"));
+	}
 
-        assertTrue(snap.hasSnapshot("snap-1"));
-        assertTrue(snap.hasSnapshot("snap-2"));
-        assertTrue(snap.hasSnapshot("snap-3"));
-    }
+	@Test
+	void savesMultipleSnapshotsWithDynamicNames() throws InterruptedException {
+		Dummy obj = new Dummy();
+		Snapshotter<Dummy> snap = Snapshotter.of(obj);
+		AtomicInteger counter = new AtomicInteger();
 
-    @Test
-    void isRunningReflectsSchedulerState() {
-        Dummy obj = new Dummy();
-        Snapshotter<Dummy> snap = Snapshotter.of(obj);
+		SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(snap, Duration.ofMillis(100), () -> true,
+				() -> "snap-" + counter.incrementAndGet(), Duration.ofMillis(0), new ConcurrentLinkedQueue<>());
 
-        SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(
-                snap,
-                Duration.ofMillis(100),
-                () -> true,
-                () -> "x",
-                Duration.ofMillis(0),
-                new ConcurrentLinkedQueue<>()
-        );
+		scheduler.start();
+		obj.value = 1;
+		TimeUnit.MILLISECONDS.sleep(400);
+		scheduler.stopAll();
 
-        scheduler.start();
+		assertTrue(snap.hasSnapshot("snap-1"));
+		assertTrue(snap.hasSnapshot("snap-2"));
+		assertTrue(snap.hasSnapshot("snap-3"));
+	}
 
-        assertTrue(scheduler.isRunning());
-        scheduler.stopAll();
-        assertFalse(scheduler.isRunning());
-    }
+	@Test
+	void isRunningReflectsSchedulerState() {
+		Dummy obj = new Dummy();
+		Snapshotter<Dummy> snap = Snapshotter.of(obj);
+
+		SnapshotterScheduler<Dummy> scheduler = new SnapshotterScheduler<>(snap, Duration.ofMillis(100), () -> true,
+				() -> "x", Duration.ofMillis(0), new ConcurrentLinkedQueue<>());
+
+		scheduler.start();
+
+		assertTrue(scheduler.isRunning());
+		scheduler.stopAll();
+		assertFalse(scheduler.isRunning());
+	}
+
 }

@@ -24,9 +24,9 @@ import com.therepanic.snapshotter.AbstractFileSnapshotStorage;
 
 class BytesFileSnapshotStorageTest extends AbstractFileSnapshotStorageTest {
 
-    @Override
-    protected AbstractFileSnapshotStorage<DummyState> createStorage() {
-        return new BytesFileSnapshotStorage<>();
-    }
+	@Override
+	protected AbstractFileSnapshotStorage<DummyState> createStorage() {
+		return new BytesFileSnapshotStorage<>();
+	}
 
 }

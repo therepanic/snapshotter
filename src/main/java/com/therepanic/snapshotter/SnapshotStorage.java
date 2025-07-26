@@ -24,16 +24,16 @@ import java.util.Map;
 
 public interface SnapshotStorage<T> {
 
-    void save(String name, Snapshot<T> snapshot);
+	void save(String name, Snapshot<T> snapshot);
 
-    Snapshot<T> load(String name);
+	Snapshot<T> load(String name);
 
-    Map.Entry<String, Snapshot<T>> loadLastEntry();
+	Map.Entry<String, Snapshot<T>> loadLastEntry();
 
-    boolean hasSnapshot(String name);
+	boolean hasSnapshot(String name);
 
-    void clear();
+	void clear();
 
-    void remove(String name);
+	void remove(String name);
 
 }

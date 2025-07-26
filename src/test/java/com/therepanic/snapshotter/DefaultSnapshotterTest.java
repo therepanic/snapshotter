@@ -36,175 +36,181 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultSnapshotterTest {
 
-    static class DummyState {
-        private String data;
+	static class DummyState {
 
-        public DummyState() {
-        }
+		private String data;
 
-        public DummyState(String data) {
-            this.data = data;
-        }
+		public DummyState() {
+		}
 
-        public String getData() {
-            return data;
-        }
+		public DummyState(String data) {
+			this.data = data;
+		}
 
-        public void setData(String data) {
-            this.data = data;
-        }
-    }
+		public String getData() {
+			return data;
+		}
 
-    private DummyState target;
-    private DefaultSnapshotter<DummyState> snapshotter;
+		public void setData(String data) {
+			this.data = data;
+		}
 
-    @BeforeEach
-    void setUp() {
-        target = new DummyState("initial");
-        Kryo newKryo = new Kryo();
-        newKryo.setRegistrationRequired(false);
-        snapshotter = new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(), new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
-    }
+	}
 
-    @Test
-    void testSaveAndRestoreDefault() {
-        snapshotter.save();
-        target.setData("modified");
-        boolean restored = snapshotter.restore();
-        assertTrue(restored);
-        assertEquals("initial", target.getData());
-    }
+	private DummyState target;
 
-    @Test
-    void testSaveAndRestoreNamed() {
-        snapshotter.save("snap1");
-        target.setData("changed");
-        boolean restored = snapshotter.restore("snap1");
-        assertTrue(restored);
-        assertEquals("initial", target.getData());
-    }
+	private DefaultSnapshotter<DummyState> snapshotter;
 
-    @Test
-    void testRestoreLast() {
-        snapshotter.save("first");
-        target.setData("second");
-        snapshotter.save("second");
-        target.setData("third");
-        boolean restored = snapshotter.restoreLast();
-        assertTrue(restored);
-        assertEquals("second", target.getData());
-    }
+	@BeforeEach
+	void setUp() {
+		target = new DummyState("initial");
+		Kryo newKryo = new Kryo();
+		newKryo.setRegistrationRequired(false);
+		snapshotter = new DefaultSnapshotter<>(target, new MemorySnapshotStorage<>(),
+				new KryoSnapshotStrategy<>(newKryo), new ArrayList<>());
+	}
 
-    @Test
-    void testDiffNoDifference() {
-        snapshotter.save();
-        Map<String, String> diff = snapshotter.diff();
-        assertTrue(diff.isEmpty());
-    }
+	@Test
+	void testSaveAndRestoreDefault() {
+		snapshotter.save();
+		target.setData("modified");
+		boolean restored = snapshotter.restore();
+		assertTrue(restored);
+		assertEquals("initial", target.getData());
+	}
 
-    @Test
-    void testDiffWithNameNoDifference() {
-        snapshotter.save("snap");
-        Map<String, String> diff = snapshotter.diff("snap");
-        assertTrue(diff.isEmpty());
-    }
+	@Test
+	void testSaveAndRestoreNamed() {
+		snapshotter.save("snap1");
+		target.setData("changed");
+		boolean restored = snapshotter.restore("snap1");
+		assertTrue(restored);
+		assertEquals("initial", target.getData());
+	}
 
-    @Test
-    void testDiffWithDifference() {
-        snapshotter.save();
-        target.setData("changed");
-        Map<String, String> diff = snapshotter.diff();
-        assertFalse(diff.isEmpty());
-        assertEquals("initial -> changed", diff.get("data"));
-    }
+	@Test
+	void testRestoreLast() {
+		snapshotter.save("first");
+		target.setData("second");
+		snapshotter.save("second");
+		target.setData("third");
+		boolean restored = snapshotter.restoreLast();
+		assertTrue(restored);
+		assertEquals("second", target.getData());
+	}
 
-    @Test
-    void testDiffBetweenTwoSnapshots() {
-        snapshotter.save("snap1");
-        target.setData("first");
-        snapshotter.save("snap2");
-        Map<String, String> diff = snapshotter.diff("snap1", "snap2");
-        assertFalse(diff.isEmpty());
-        assertEquals("initial -> first", diff.get("data"));
-    }
+	@Test
+	void testDiffNoDifference() {
+		snapshotter.save();
+		Map<String, String> diff = snapshotter.diff();
+		assertTrue(diff.isEmpty());
+	}
 
-    @Test
-    void testHasSnapshot() {
-        snapshotter.save();
-        assertTrue(snapshotter.hasSnapshot("default"));
-        assertFalse(snapshotter.hasSnapshot("nonexistent"));
-    }
+	@Test
+	void testDiffWithNameNoDifference() {
+		snapshotter.save("snap");
+		Map<String, String> diff = snapshotter.diff("snap");
+		assertTrue(diff.isEmpty());
+	}
 
-    @Test
-    void testClear() {
-        snapshotter.save();
-        snapshotter.clear();
-        boolean restored = snapshotter.restore();
-        assertFalse(restored);
-    }
+	@Test
+	void testDiffWithDifference() {
+		snapshotter.save();
+		target.setData("changed");
+		Map<String, String> diff = snapshotter.diff();
+		assertFalse(diff.isEmpty());
+		assertEquals("initial -> changed", diff.get("data"));
+	}
 
-    @Test
-    void testRemoveDefault() {
-        snapshotter.save();
-        snapshotter.remove();
-        assertFalse(snapshotter.hasSnapshot("default"));
-    }
+	@Test
+	void testDiffBetweenTwoSnapshots() {
+		snapshotter.save("snap1");
+		target.setData("first");
+		snapshotter.save("snap2");
+		Map<String, String> diff = snapshotter.diff("snap1", "snap2");
+		assertFalse(diff.isEmpty());
+		assertEquals("initial -> first", diff.get("data"));
+	}
 
-    @Test
-    void testRemoveNamed() {
-        snapshotter.save("snapX");
-        snapshotter.remove("snapX");
-        assertFalse(snapshotter.hasSnapshot("snapX"));
-    }
+	@Test
+	void testHasSnapshot() {
+		snapshotter.save();
+		assertTrue(snapshotter.hasSnapshot("default"));
+		assertFalse(snapshotter.hasSnapshot("nonexistent"));
+	}
 
-    @Test
-    void testRunAndSaveDefault() {
-        snapshotter.save();
-        target.setData("changed");
-        snapshotter.runAndSave(() -> target.setData("runAndSave"));
-        target.setData("modified");
-        boolean restored = snapshotter.restore();
-        assertTrue(restored);
-        assertEquals("runAndSave", target.getData());
-    }
+	@Test
+	void testClear() {
+		snapshotter.save();
+		snapshotter.clear();
+		boolean restored = snapshotter.restore();
+		assertFalse(restored);
+	}
 
-    @Test
-    void testRunAndSaveNamed() {
-        snapshotter.save();
-        target.setData("changed");
-        snapshotter.runAndSave(() -> target.setData("runAndSaveNamed"), "named");
-        target.setData("modified");
-        boolean restored = snapshotter.restore("named");
-        assertTrue(restored);
-        assertEquals("runAndSaveNamed", target.getData());
-    }
+	@Test
+	void testRemoveDefault() {
+		snapshotter.save();
+		snapshotter.remove();
+		assertFalse(snapshotter.hasSnapshot("default"));
+	}
 
-    @Test
-    void listenerShouldBeNotifiedOnSaveAndRestoreWithDetails() {
-        target.setData("initial");
+	@Test
+	void testRemoveNamed() {
+		snapshotter.save("snapX");
+		snapshotter.remove("snapX");
+		assertFalse(snapshotter.hasSnapshot("snapX"));
+	}
 
-        AtomicBoolean saveCalled = new AtomicBoolean(false);
-        AtomicBoolean restoreCalled = new AtomicBoolean(false);
+	@Test
+	void testRunAndSaveDefault() {
+		snapshotter.save();
+		target.setData("changed");
+		snapshotter.runAndSave(() -> target.setData("runAndSave"));
+		target.setData("modified");
+		boolean restored = snapshotter.restore();
+		assertTrue(restored);
+		assertEquals("runAndSave", target.getData());
+	}
 
-        snapshotter.addListener(event -> {
-            if (event instanceof SnapshotterSavedEvent) {
-                saveCalled.set(true);
-                assertEquals("default", event.getName());
-                assertEquals("initial", event.getTarget().getData());
-                assertNotNull(((SnapshotterSavedEvent<DummyState>) event).getSnapshot());
-            } else if (event instanceof SnapshotterRestoredEvent) {
-                restoreCalled.set(true);
-                assertEquals("default", event.getName());
-                assertEquals("initial", event.getTarget().getData());
-            }
-        });
+	@Test
+	void testRunAndSaveNamed() {
+		snapshotter.save();
+		target.setData("changed");
+		snapshotter.runAndSave(() -> target.setData("runAndSaveNamed"), "named");
+		target.setData("modified");
+		boolean restored = snapshotter.restore("named");
+		assertTrue(restored);
+		assertEquals("runAndSaveNamed", target.getData());
+	}
 
-        snapshotter.save();
-        assertTrue(saveCalled.get());
+	@Test
+	void listenerShouldBeNotifiedOnSaveAndRestoreWithDetails() {
+		target.setData("initial");
 
-        target.setData("changed");
-        snapshotter.restore();
-        assertTrue(restoreCalled.get());
-        assertEquals("initial", target.getData());
-    }
+		AtomicBoolean saveCalled = new AtomicBoolean(false);
+		AtomicBoolean restoreCalled = new AtomicBoolean(false);
+
+		snapshotter.addListener(event -> {
+			if (event instanceof SnapshotterSavedEvent) {
+				saveCalled.set(true);
+				assertEquals("default", event.getName());
+				assertEquals("initial", event.getTarget().getData());
+				assertNotNull(((SnapshotterSavedEvent<DummyState>) event).getSnapshot());
+			}
+			else if (event instanceof SnapshotterRestoredEvent) {
+				restoreCalled.set(true);
+				assertEquals("default", event.getName());
+				assertEquals("initial", event.getTarget().getData());
+			}
+		});
+
+		snapshotter.save();
+		assertTrue(saveCalled.get());
+
+		target.setData("changed");
+		snapshotter.restore();
+		assertTrue(restoreCalled.get());
+		assertEquals("initial", target.getData());
+	}
+
 }

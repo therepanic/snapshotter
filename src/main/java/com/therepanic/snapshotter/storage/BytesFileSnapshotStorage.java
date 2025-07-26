@@ -31,45 +31,45 @@ import java.util.LinkedHashMap;
 
 public class BytesFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
-    private final Kryo kryo;
+	private final Kryo kryo;
 
-    public BytesFileSnapshotStorage(LinkedHashMap<String, File> snapshots, Kryo kryo) {
-        super(snapshots);
-        this.kryo = kryo;
-    }
+	public BytesFileSnapshotStorage(LinkedHashMap<String, File> snapshots, Kryo kryo) {
+		super(snapshots);
+		this.kryo = kryo;
+	}
 
-    public BytesFileSnapshotStorage(Kryo kryo) {
-        this(new LinkedHashMap<>(), kryo);
-    }
+	public BytesFileSnapshotStorage(Kryo kryo) {
+		this(new LinkedHashMap<>(), kryo);
+	}
 
-    public BytesFileSnapshotStorage() {
-        this(new LinkedHashMap<>(), createDefaultKryo());
-    }
+	public BytesFileSnapshotStorage() {
+		this(new LinkedHashMap<>(), createDefaultKryo());
+	}
 
-    public BytesFileSnapshotStorage(LinkedHashMap<String, File> snapshots) {
-        this(snapshots, createDefaultKryo());
-    }
+	public BytesFileSnapshotStorage(LinkedHashMap<String, File> snapshots) {
+		this(snapshots, createDefaultKryo());
+	}
 
-    private static Kryo createDefaultKryo() {
-        Kryo kryo = new Kryo();
-        kryo.setRegistrationRequired(false);
-        return kryo;
-    }
+	private static Kryo createDefaultKryo() {
+		Kryo kryo = new Kryo();
+		kryo.setRegistrationRequired(false);
+		return kryo;
+	}
 
-    @Override
-    public byte[] encode(Snapshot<T> snapshot) {
-        try (Output output = new Output(1024, -1)) {
-            this.kryo.writeObject(output, snapshot);
-            return output.toBytes();
-        }
-    }
+	@Override
+	public byte[] encode(Snapshot<T> snapshot) {
+		try (Output output = new Output(1024, -1)) {
+			this.kryo.writeObject(output, snapshot);
+			return output.toBytes();
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public Snapshot<T> decode(byte[] data) {
-        try (Input input = new Input(data)) {
-            return (Snapshot<T>) this.kryo.readObject(input, Snapshot.class);
-        }
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public Snapshot<T> decode(byte[] data) {
+		try (Input input = new Input(data)) {
+			return (Snapshot<T>) this.kryo.readObject(input, Snapshot.class);
+		}
+	}
 
 }

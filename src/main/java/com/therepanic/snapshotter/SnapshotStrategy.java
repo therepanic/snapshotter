@@ -22,6 +22,6 @@ package com.therepanic.snapshotter;
 
 public interface SnapshotStrategy<T> {
 
-    T deepClone(T obj);
+	T deepClone(T obj);
 
 }

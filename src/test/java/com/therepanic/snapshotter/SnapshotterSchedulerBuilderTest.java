@@ -28,53 +28,55 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SnapshotterSchedulerBuilderTest {
-    static class Dummy {
-        int x;
-    }
 
-    @Test
-    void throwsIfIntervalNotSet() {
-        Snapshotter<Dummy> snap = Snapshotter.of(new Dummy());
+	static class Dummy {
 
-        assertThrows(IllegalStateException.class, () -> snap.schedule().build());
-    }
+		int x;
 
-    @Test
-    void buildsSchedulerWithCorrectDefaults() {
-        Snapshotter<Dummy> snap = Snapshotter.of(new Dummy());
+	}
 
-        SnapshotterScheduler<Dummy> scheduler = snap.schedule()
-                .every(Duration.ofMillis(100))
-                .build();
+	@Test
+	void throwsIfIntervalNotSet() {
+		Snapshotter<Dummy> snap = Snapshotter.of(new Dummy());
 
-        assertNotNull(scheduler);
+		assertThrows(IllegalStateException.class, () -> snap.schedule().build());
+	}
 
-        scheduler.start();
+	@Test
+	void buildsSchedulerWithCorrectDefaults() {
+		Snapshotter<Dummy> snap = Snapshotter.of(new Dummy());
 
-        assertTrue(scheduler.isRunning());
-        scheduler.stopAll();
-        assertFalse(scheduler.isRunning());
-    }
+		SnapshotterScheduler<Dummy> scheduler = snap.schedule().every(Duration.ofMillis(100)).build();
 
-    @Test
-    void usesCustomNameGenerator() throws InterruptedException {
-        Dummy obj = new Dummy();
-        obj.x = 100;
+		assertNotNull(scheduler);
 
-        Snapshotter<Dummy> snap = Snapshotter.of(obj);
+		scheduler.start();
 
-        SnapshotterScheduler<Dummy> scheduler = snap.schedule()
-                .every(Duration.ofMillis(100))
-                .saveAs("custom-name")
-                .build();
+		assertTrue(scheduler.isRunning());
+		scheduler.stopAll();
+		assertFalse(scheduler.isRunning());
+	}
 
-        scheduler.start();
-        TimeUnit.MILLISECONDS.sleep(150);
-        obj.x = 123;
-        scheduler.stopAll();
+	@Test
+	void usesCustomNameGenerator() throws InterruptedException {
+		Dummy obj = new Dummy();
+		obj.x = 100;
 
-        snap.restore("custom-name");
+		Snapshotter<Dummy> snap = Snapshotter.of(obj);
 
-        assertEquals(100, obj.x);
-    }
+		SnapshotterScheduler<Dummy> scheduler = snap.schedule()
+			.every(Duration.ofMillis(100))
+			.saveAs("custom-name")
+			.build();
+
+		scheduler.start();
+		TimeUnit.MILLISECONDS.sleep(150);
+		obj.x = 123;
+		scheduler.stopAll();
+
+		snap.restore("custom-name");
+
+		assertEquals(100, obj.x);
+	}
+
 }

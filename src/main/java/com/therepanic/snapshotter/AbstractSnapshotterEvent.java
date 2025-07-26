@@ -22,20 +22,21 @@ package com.therepanic.snapshotter;
 
 public abstract class AbstractSnapshotterEvent<T> {
 
-    private final String name;
-    private final T target;
+	private final String name;
 
-    public AbstractSnapshotterEvent(String name, T target) {
-        this.name = name;
-        this.target = target;
-    }
+	private final T target;
 
-    public String getName() {
-        return this.name;
-    }
+	public AbstractSnapshotterEvent(String name, T target) {
+		this.name = name;
+		this.target = target;
+	}
 
-    public T getTarget() {
-        return this.target;
-    }
+	public String getName() {
+		return this.name;
+	}
+
+	public T getTarget() {
+		return this.target;
+	}
 
 }

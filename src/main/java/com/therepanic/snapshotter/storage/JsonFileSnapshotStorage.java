@@ -31,38 +31,39 @@ import java.util.LinkedHashMap;
 
 public class JsonFileSnapshotStorage<T> extends AbstractFileSnapshotStorage<T> {
 
-    private final Gson gson;
-    private final Type typeOfT;
+	private final Gson gson;
 
-    public JsonFileSnapshotStorage(Gson gson, Type typeOfT, LinkedHashMap<String, File> snapshots) {
-        super(snapshots);
-        this.gson = gson;
-        this.typeOfT = typeOfT;
-    }
+	private final Type typeOfT;
 
-    public JsonFileSnapshotStorage(Gson gson, Type typeOfT) {
-        this(gson, typeOfT, new LinkedHashMap<>());
-    }
+	public JsonFileSnapshotStorage(Gson gson, Type typeOfT, LinkedHashMap<String, File> snapshots) {
+		super(snapshots);
+		this.gson = gson;
+		this.typeOfT = typeOfT;
+	}
 
-    public JsonFileSnapshotStorage(Type typeOfT) {
-        this(new Gson(), typeOfT, new LinkedHashMap<>());
-    }
+	public JsonFileSnapshotStorage(Gson gson, Type typeOfT) {
+		this(gson, typeOfT, new LinkedHashMap<>());
+	}
 
-    public JsonFileSnapshotStorage(Type typeOfT, LinkedHashMap<String, File> snapshots) {
-        this(new Gson(), typeOfT, snapshots);
-    }
+	public JsonFileSnapshotStorage(Type typeOfT) {
+		this(new Gson(), typeOfT, new LinkedHashMap<>());
+	}
 
-    @Override
-    protected byte[] encode(Snapshot<T> snapshot) {
-        String encodedStr = this.gson.toJson(snapshot.getState());
-        return encodedStr.getBytes(StandardCharsets.UTF_8);
-    }
+	public JsonFileSnapshotStorage(Type typeOfT, LinkedHashMap<String, File> snapshots) {
+		this(new Gson(), typeOfT, snapshots);
+	}
 
-    @Override
-    protected Snapshot<T> decode(byte[] data) {
-        String str = new String(data, StandardCharsets.UTF_8);
-        T state = this.gson.fromJson(str, typeOfT);
-        return new Snapshot<>(state);
-    }
+	@Override
+	protected byte[] encode(Snapshot<T> snapshot) {
+		String encodedStr = this.gson.toJson(snapshot.getState());
+		return encodedStr.getBytes(StandardCharsets.UTF_8);
+	}
+
+	@Override
+	protected Snapshot<T> decode(byte[] data) {
+		String str = new String(data, StandardCharsets.UTF_8);
+		T state = this.gson.fromJson(str, typeOfT);
+		return new Snapshot<>(state);
+	}
 
 }

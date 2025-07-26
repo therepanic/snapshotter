@@ -30,24 +30,24 @@ import java.io.ByteArrayOutputStream;
 
 public class KryoSnapshotStrategy<T> implements SnapshotStrategy<T> {
 
-    private final Kryo kryo;
+	private final Kryo kryo;
 
-    public KryoSnapshotStrategy(Kryo kryo) {
-        this.kryo = kryo;
-    }
+	public KryoSnapshotStrategy(Kryo kryo) {
+		this.kryo = kryo;
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public T deepClone(T obj) {
-        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-        Output output = new Output(byteOutput);
-        this.kryo.writeObject(output, obj);
-        output.close();
-        ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
-        Input input = new Input(byteInput);
-        T cloned = (T) this.kryo.readObject(input, obj.getClass());
-        input.close();
-        return cloned;
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public T deepClone(T obj) {
+		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+		Output output = new Output(byteOutput);
+		this.kryo.writeObject(output, obj);
+		output.close();
+		ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
+		Input input = new Input(byteInput);
+		T cloned = (T) this.kryo.readObject(input, obj.getClass());
+		input.close();
+		return cloned;
+	}
 
 }

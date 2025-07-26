@@ -28,44 +28,44 @@ import java.util.Map;
 
 public class MemorySnapshotStorage<T> implements SnapshotStorage<T> {
 
-    private final LinkedHashMap<String, Snapshot<T>> snapshots;
+	private final LinkedHashMap<String, Snapshot<T>> snapshots;
 
-    public MemorySnapshotStorage(LinkedHashMap<String, Snapshot<T>> snapshots) {
-        this.snapshots = snapshots;
-    }
+	public MemorySnapshotStorage(LinkedHashMap<String, Snapshot<T>> snapshots) {
+		this.snapshots = snapshots;
+	}
 
-    public MemorySnapshotStorage() {
-        this(new LinkedHashMap<>());
-    }
+	public MemorySnapshotStorage() {
+		this(new LinkedHashMap<>());
+	}
 
-    @Override
-    public void save(String name, Snapshot<T> snapshot) {
-        this.snapshots.put(name, snapshot);
-    }
+	@Override
+	public void save(String name, Snapshot<T> snapshot) {
+		this.snapshots.put(name, snapshot);
+	}
 
-    @Override
-    public Snapshot<T> load(String name) {
-        return this.snapshots.get(name);
-    }
+	@Override
+	public Snapshot<T> load(String name) {
+		return this.snapshots.get(name);
+	}
 
-    @Override
-    public Map.Entry<String, Snapshot<T>> loadLastEntry() {
-        return this.snapshots.entrySet().stream().reduce((first, second) -> second).orElse(null);
-    }
+	@Override
+	public Map.Entry<String, Snapshot<T>> loadLastEntry() {
+		return this.snapshots.entrySet().stream().reduce((first, second) -> second).orElse(null);
+	}
 
-    @Override
-    public boolean hasSnapshot(String name) {
-        return this.snapshots.containsKey(name);
-    }
+	@Override
+	public boolean hasSnapshot(String name) {
+		return this.snapshots.containsKey(name);
+	}
 
-    @Override
-    public void clear() {
-        this.snapshots.clear();
-    }
+	@Override
+	public void clear() {
+		this.snapshots.clear();
+	}
 
-    @Override
-    public void remove(String name) {
-        this.snapshots.remove(name);
-    }
+	@Override
+	public void remove(String name) {
+		this.snapshots.remove(name);
+	}
 
 }

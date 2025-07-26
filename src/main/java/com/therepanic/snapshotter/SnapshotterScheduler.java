@@ -27,72 +27,86 @@ import java.util.function.Supplier;
 
 public class SnapshotterScheduler<T> implements AutoCloseable {
 
-    private final ScheduledExecutorService scheduler;
-    private final boolean ownsScheduler;
-    private final Snapshotter<T> snapshotter;
-    private final Duration interval;
-    private final BooleanSupplier condition;
-    private final Supplier<String> nameGenerator;
-    private final Duration initialDelay;
-    private final ConcurrentLinkedQueue<Future<?>> tasks;
+	private final ScheduledExecutorService scheduler;
 
-    private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
-        this.scheduler = scheduler;
-        this.ownsScheduler = ownsScheduler;
-        this.snapshotter = snapshotter;
-        this.interval = interval;
-        this.condition = condition;
-        this.nameGenerator = nameGenerator;
-        this.initialDelay = initialDelay;
-        this.tasks = tasks;
-    }
+	private final boolean ownsScheduler;
 
-    public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
-        this(scheduler, false, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
-    }
+	private final Snapshotter<T> snapshotter;
 
-    public SnapshotterScheduler(Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
-        this(defaultScheduler(), true, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
-    }
+	private final Duration interval;
 
-    public static ScheduledExecutorService defaultScheduler() {
-        return Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
-    }
+	private final BooleanSupplier condition;
 
-    public void start() {
-        Future<?> task = this.scheduler.scheduleAtFixedRate(() -> {
-            if (this.condition.getAsBoolean()) {
-                synchronized (this.snapshotter) {
-                    this.snapshotter.save(this.nameGenerator.get());
-                }
-            }
-        }, this.initialDelay.toMillis(), this.interval.toMillis(), TimeUnit.MILLISECONDS);
-        this.tasks.add(task);
-    }
+	private final Supplier<String> nameGenerator;
 
-    public void stopAll() {
-        for (Future<?> task : this.tasks) {
-            task.cancel(false);
-        }
-        this.tasks.clear();
-    }
+	private final Duration initialDelay;
 
-    public boolean isRunning() {
-        return !this.tasks.isEmpty();
-    }
+	private final ConcurrentLinkedQueue<Future<?>> tasks;
 
-    @Override
-    public void close() throws Exception {
-        stopAll();
-        if (this.ownsScheduler) {
-            this.scheduler.shutdown();
-            try {
-                if (!this.scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
-                    this.scheduler.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
+	private SnapshotterScheduler(ScheduledExecutorService scheduler, boolean ownsScheduler, Snapshotter<T> snapshotter,
+			Duration interval, BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay,
+			ConcurrentLinkedQueue<Future<?>> tasks) {
+		this.scheduler = scheduler;
+		this.ownsScheduler = ownsScheduler;
+		this.snapshotter = snapshotter;
+		this.interval = interval;
+		this.condition = condition;
+		this.nameGenerator = nameGenerator;
+		this.initialDelay = initialDelay;
+		this.tasks = tasks;
+	}
+
+	public SnapshotterScheduler(ScheduledExecutorService scheduler, Snapshotter<T> snapshotter, Duration interval,
+			BooleanSupplier condition, Supplier<String> nameGenerator, Duration initialDelay,
+			ConcurrentLinkedQueue<Future<?>> tasks) {
+		this(scheduler, false, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
+	}
+
+	public SnapshotterScheduler(Snapshotter<T> snapshotter, Duration interval, BooleanSupplier condition,
+			Supplier<String> nameGenerator, Duration initialDelay, ConcurrentLinkedQueue<Future<?>> tasks) {
+		this(defaultScheduler(), true, snapshotter, interval, condition, nameGenerator, initialDelay, tasks);
+	}
+
+	public static ScheduledExecutorService defaultScheduler() {
+		return Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+	}
+
+	public void start() {
+		Future<?> task = this.scheduler.scheduleAtFixedRate(() -> {
+			if (this.condition.getAsBoolean()) {
+				synchronized (this.snapshotter) {
+					this.snapshotter.save(this.nameGenerator.get());
+				}
+			}
+		}, this.initialDelay.toMillis(), this.interval.toMillis(), TimeUnit.MILLISECONDS);
+		this.tasks.add(task);
+	}
+
+	public void stopAll() {
+		for (Future<?> task : this.tasks) {
+			task.cancel(false);
+		}
+		this.tasks.clear();
+	}
+
+	public boolean isRunning() {
+		return !this.tasks.isEmpty();
+	}
+
+	@Override
+	public void close() throws Exception {
+		stopAll();
+		if (this.ownsScheduler) {
+			this.scheduler.shutdown();
+			try {
+				if (!this.scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+					this.scheduler.shutdownNow();
+				}
+			}
+			catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
 }
